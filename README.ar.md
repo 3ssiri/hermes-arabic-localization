@@ -1,9 +1,13 @@
 # تعريب Hermes Desktop
 
-هذا المستودع يوفر حزمة تعريب عربية مجتمعية لواجهة Hermes Desktop.
+حزمة بسيطة لإضافة اللغة العربية إلى واجهة **Hermes Desktop**.
 
-الفكرة ليست توزيع نسخة كاملة معدلة من Hermes، بل توفير patch وسكربت يطبقه على
-نسخة Hermes الموجودة لديك.
+الفكرة: لا تحتاج إلى تنزيل نسخة كاملة معدلة من Hermes. هذا المستودع يوفر:
+
+- ملف patch للتعريب.
+- سكربت يطبقه على نسخة Hermes الموجودة لديك.
+- إعداد تلقائي للغة العربية.
+- أوامر تحقق للتأكد أن الواجهة لم تنكسر.
 
 المشروع الأصلي:
 https://github.com/NousResearch/hermes-agent
@@ -11,19 +15,43 @@ https://github.com/NousResearch/hermes-agent
 طلب الدمج الرسمي:
 https://github.com/NousResearch/hermes-agent/pull/45619
 
+## التثبيت السريع
+
+افتح PowerShell ونفذ:
+
+```powershell
+git clone https://github.com/3ssiri/hermes-arabic-localization.git
+cd hermes-arabic-localization
+.\scripts\apply-arabic.ps1 -Build
+```
+
+بعد اكتمال البناء، شغل Hermes من:
+
+```text
+%LOCALAPPDATA%\hermes\hermes-agent\apps\desktop\release\win-unpacked\Hermes.exe
+```
+
+## إذا كان Hermes في مسار مختلف
+
+```powershell
+.\scripts\apply-arabic.ps1 -HermesPath "C:\path\to\hermes-agent" -Build
+```
+
 ## ماذا يشمل التعريب؟
 
-- إضافة العربية كخيار لغة في Hermes Desktop.
-- تفعيل اتجاه RTL عند اختيار العربية.
-- تعريب أقسام الإعدادات.
+- إضافة العربية كخيار لغة.
+- دعم اتجاه RTL.
+- تعريب الإعدادات.
 - تعريب المزودين والحسابات.
 - تعريب أدوات ومفاتيح API.
 - تعريب MCP.
 - تعريب المحادثات المؤرشفة.
-- تعريب صفحة حول ومنطقة Danger Zone.
-- اختبارات للتأكد من عمل العربية داخل i18n.
+- تعريب صفحة حول.
+- تعريب منطقة Danger Zone.
 
-لا يغير هذا التعريب:
+## ماذا لا يغير؟
+
+هذا التعريب لا يغير:
 
 - منطق الوكيل.
 - الـ prompt.
@@ -32,43 +60,33 @@ https://github.com/NousResearch/hermes-agent/pull/45619
 - المزودين.
 - لوحة Dashboard.
 
-## التثبيت السريع على Windows
+## ماذا يفعل السكربت؟
 
-افتح PowerShell:
+عند تشغيل:
 
 ```powershell
-git clone https://github.com/3ssiri/hermes-arabic-localization.git
-cd hermes-arabic-localization
 .\scripts\apply-arabic.ps1 -Build
 ```
 
-يفترض السكربت أن Hermes موجود هنا:
+يقوم بالآتي:
+
+1. يتحقق من وجود Hermes.
+2. ينشئ فرعاً باسم `arabic-localization`.
+3. يطبق ملف التعريب:
 
 ```text
-%LOCALAPPDATA%\hermes\hermes-agent
+patches/desktop-arabic-localization.patch
 ```
 
-إذا كان في مسار آخر:
-
-```powershell
-.\scripts\apply-arabic.ps1 -HermesPath "C:\path\to\hermes-agent" -Build
-```
-
-## ماذا يفعل السكربت؟
-
-1. يتأكد أن مجلد Hermes هو مستودع Git.
-2. يرفض العمل إذا كانت هناك تغييرات غير محفوظة، إلا إذا استخدمت `-AllowDirty`.
-3. ينشئ أو ينتقل إلى فرع `arabic-localization`.
-4. يطبق ملف التعريب الموجود في `patches/`.
-5. يضبط اللغة في إعدادات Hermes إلى:
+4. يضبط اللغة العربية في إعدادات Hermes:
 
 ```yaml
 display:
   language: ar
 ```
 
-6. يشغل فحص TypeScript واختبارات i18n.
-7. يبني تطبيق سطح المكتب إذا استخدمت `-Build`.
+5. يشغل فحص TypeScript واختبارات التعريب.
+6. يبني نسخة Hermes Desktop.
 
 ## التحقق اليدوي
 
@@ -78,25 +96,35 @@ npm run typecheck
 npm run test:ui -- src/i18n/runtime.test.ts src/i18n/languages.test.ts src/i18n/context.test.tsx src/components/language-switcher.test.tsx
 ```
 
-## عند صدور تحديث جديد من Hermes
+## ملفات مهمة
 
-إذا لم يطبق patch بسبب تغييرات جديدة في Hermes:
+- `patches/desktop-arabic-localization.patch`: ملف التعريب.
+- `scripts/apply-arabic.ps1`: تطبيق التعريب على Windows.
+- `scripts/apply-arabic.sh`: تطبيق التعريب على macOS/Linux.
+- `scripts/verify.ps1`: تشغيل فحوصات التعريب.
+- `docs/`: شروحات إضافية.
 
-1. حدث Hermes.
-2. أعد تشغيل السكربت.
-3. إذا فشل `git apply --check`، افتح issue هنا مع رقم commit ورسالة الخطأ.
+## عند حدوث مشكلة
+
+راجع:
+
+```text
+docs/troubleshooting-ar.md
+```
+
+إذا فشل تطبيق التعريب بعد تحديث Hermes، افتح issue وأرفق:
+
+- نظام التشغيل.
+- رقم commit من Hermes.
+- رسالة الخطأ كاملة.
 
 ## الحقوق
 
-إعداد وصيانة تعريب Hermes Desktop:
+إعداد وصيانة التعريب العربي:
 
 - علي عسيري
 - البريد الإلكتروني: assiri@gmail.com
 
-يوجد عمل تعريب عربي أوسع سابق في الطلب:
-NousResearch/hermes-agent#44987 بواسطة Da7-Tech.
-
-هذا المستودع حزمة تعريب مجتمعية مستقلة، وليس إصداراً رسمياً من Hermes إلا إذا
-تم دمجه في المشروع الأصلي.
+هذا المستودع حزمة تعريب مجتمعية مستقلة، وليس إصداراً رسمياً من Hermes إلا إذا تم دمجه في المشروع الأصلي.
 
 تبقى حقوق Hermes Agent وترخيصه الأصلي محفوظة للمؤلفين والمساهمين الأصليين.
