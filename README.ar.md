@@ -24,7 +24,7 @@
 
 طلب الدمج الرسمي: https://github.com/NousResearch/hermes-agent/pull/45619
 
-المشرف على التعريب: **علي عسيري** · [@3ssiri](https://x.com/3ssiri)
+المشرف على التعريب: **علي عسيري** · X: https://x.com/3li3
 
 ## لماذا هذا المستودع؟
 
@@ -128,6 +128,6 @@ npm run test:ui -- src/i18n/runtime.test.ts src/i18n/languages.test.ts src/i18n/
 
 - علي عسيري
 - البريد الإلكتروني: assiri@gmail.com
-- X: [@3ssiri](https://x.com/3ssiri)
+- X: https://x.com/3li3
 
 تبقى حقوق Hermes Agent وترخيصه الأصلي محفوظة للمؤلفين والمساهمين الأصليين.

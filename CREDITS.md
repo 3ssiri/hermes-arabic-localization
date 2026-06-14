@@ -6,7 +6,7 @@ Maintained by:
 
 - Ali Asiri
 - Email: assiri@gmail.com
-- X: https://x.com/3ssiri
+- X: https://x.com/3li3
 
 This repository provides Arabic localization files and installer scripts for Hermes Desktop.
 

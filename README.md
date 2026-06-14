@@ -24,7 +24,7 @@ Original project: https://github.com/NousResearch/hermes-agent
 
 Upstream PR: https://github.com/NousResearch/hermes-agent/pull/45619
 
-Maintainer: **Ali Asiri** · [@3ssiri](https://x.com/3ssiri)
+Maintainer: **Ali Asiri** · X: https://x.com/3li3
 
 ## Why This Repository Exists
 
@@ -125,6 +125,6 @@ Arabic desktop localization maintained by:
 
 - Ali Asiri
 - Email: assiri@gmail.com
-- X: [@3ssiri](https://x.com/3ssiri)
+- X: https://x.com/3li3
 
 Hermes Agent remains owned and licensed by its original authors and contributors.
