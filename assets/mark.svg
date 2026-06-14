@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="240" viewBox="0 0 960 240" role="img" aria-labelledby="title desc">
+  <title id="title">Hermes Arabic Localization</title>
+  <desc id="desc">Project mark for the Hermes Desktop Arabic localization package.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f2d27a"/>
+      <stop offset="1" stop-color="#b88a2e"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#79e7ff"/>
+      <stop offset="1" stop-color="#2f8ab5"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="240" rx="28" fill="#0c1117"/>
+  <path d="M78 62h134l36 36h146" fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M706 64h132l44 44v70" fill="none" stroke="url(#cyan)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="112" cy="100" r="8" fill="#f2d27a"/>
+  <circle cx="834" cy="104" r="8" fill="#79e7ff"/>
+  <g transform="translate(72 72)">
+    <rect width="96" height="96" rx="22" fill="#111a24" stroke="#2a3847" stroke-width="3"/>
+    <path d="M28 62h40M48 28v68M30 38c10-12 26-12 36 0M30 78c10 12 26 12 36 0" fill="none" stroke="#f2d27a" stroke-width="6" stroke-linecap="round"/>
+    <path d="M22 48h52" stroke="#79e7ff" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <text x="204" y="105" fill="#f7fafc" font-family="Segoe UI, Arial, sans-serif" font-size="44" font-weight="700">Hermes Arabic Localization</text>
+  <text x="205" y="152" fill="#aeb8c4" font-family="Segoe UI, Arial, sans-serif" font-size="24">Arabic UI and RTL support for Hermes Desktop</text>
+  <text x="205" y="190" fill="#d9b765" font-family="Segoe UI, Arial, sans-serif" font-size="20">Ali Asiri · @3ssiri</text>
+</svg>

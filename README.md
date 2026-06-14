@@ -1,21 +1,36 @@
+<p align="center">
+  <img src="assets/hero-en.png" alt="Hermes Arabic Localization banner" width="100%">
+</p>
+
+<p align="center">
+  <img src="assets/mark.svg" alt="Hermes Arabic Localization" width="720">
+</p>
+
+<p align="center">
+  <a href="README.ar.md">العربية</a>
+  ·
+  <a href="https://github.com/3ssiri/hermes-arabic-localization/issues">Issues</a>
+  ·
+  <a href="https://github.com/NousResearch/hermes-agent">Hermes Agent</a>
+</p>
+
 # Hermes Arabic Localization
 
-Arabic localization package for **Hermes Desktop**.
+Arabic interface support for **Hermes Desktop**, distributed as a patch and installer scripts.
 
-This repository does not ship a full modified copy of Hermes. It provides:
+The repository keeps the original Hermes project separate. It applies a focused desktop localization patch to an existing Hermes checkout, sets Arabic as the desktop language, and verifies the result with the desktop test commands.
 
-- A desktop Arabic localization patch.
-- Installer scripts for Windows, macOS, and Linux.
-- Arabic language configuration.
-- Verification commands to make sure the desktop UI still builds and tests pass.
+Original project: https://github.com/NousResearch/hermes-agent
 
-Original project:
-https://github.com/NousResearch/hermes-agent
+Upstream PR: https://github.com/NousResearch/hermes-agent/pull/45619
 
-Upstream PR:
-https://github.com/NousResearch/hermes-agent/pull/45619
+Maintainer: **Ali Asiri** · [@3ssiri](https://x.com/3ssiri)
 
-## Quick Install
+## Why This Repository Exists
+
+The localization has been submitted upstream for review. This repository gives Arabic-speaking users a practical way to install and test the work while the official review continues. It also keeps the change auditable: the package is a patch, not a redistributed Hermes build.
+
+## Install
 
 Windows PowerShell:
 
@@ -25,60 +40,68 @@ cd hermes-arabic-localization
 .\scripts\apply-arabic.ps1 -Build
 ```
 
-Then run Hermes Desktop from:
+Default Hermes path:
 
 ```text
-%LOCALAPPDATA%\hermes\hermes-agent\apps\desktop\release\win-unpacked\Hermes.exe
+%LOCALAPPDATA%\hermes\hermes-agent
 ```
 
-## Custom Hermes Path
+Custom path:
 
 ```powershell
 .\scripts\apply-arabic.ps1 -HermesPath "C:\path\to\hermes-agent" -Build
 ```
 
-## What It Adds
+Run the built app:
 
-- Arabic (`ar`) as a desktop UI language.
-- RTL direction for the Electron desktop renderer.
-- Arabic settings copy.
-- Provider account and API key translations.
-- Tools & Keys credential-row translations.
-- MCP, archived chats, about, and uninstall danger-zone translations.
-- i18n regression tests for Arabic behavior.
+```text
+%LOCALAPPDATA%\hermes\hermes-agent\apps\desktop\release\win-unpacked\Hermes.exe
+```
 
-## What It Does Not Change
+## Included
 
-- Agent behavior.
-- Prompts.
-- Model tools.
-- Backend APIs.
-- Provider logic.
-- Dashboard UI.
+- Arabic (`ar`) desktop locale.
+- RTL direction for the Electron renderer.
+- Arabic settings, providers, accounts, API keys, MCP, archived chats, about, and uninstall copy.
+- Credential-row localization for Tools & Keys.
+- Locale registration and language aliases.
+- Desktop i18n tests.
 
-## What The Script Does
+## Not Included
 
-`scripts/apply-arabic.ps1`:
+- Agent behavior changes.
+- Prompt changes.
+- Model-tool changes.
+- Backend API changes.
+- Provider logic changes.
+- Dashboard localization.
 
-1. Checks the target Hermes checkout.
-2. Creates or switches to an `arabic-localization` branch.
-3. Applies:
+## How It Works
+
+<p align="center">
+  <img src="assets/install-flow.svg" alt="Install flow: patch, configure, verify, build" width="100%">
+</p>
+
+The main script:
+
+```text
+scripts/apply-arabic.ps1
+```
+
+It applies:
 
 ```text
 patches/desktop-arabic-localization.patch
 ```
 
-4. Sets:
+Then it sets:
 
 ```yaml
 display:
   language: ar
 ```
 
-5. Runs desktop typecheck and Arabic i18n tests.
-6. Builds the packaged desktop app when `-Build` is passed.
-
-## Manual Verification
+## Verify
 
 ```powershell
 cd $env:LOCALAPPDATA\hermes\hermes-agent\apps\desktop
@@ -86,13 +109,15 @@ npm run typecheck
 npm run test:ui -- src/i18n/runtime.test.ts src/i18n/languages.test.ts src/i18n/context.test.tsx src/components/language-switcher.test.tsx
 ```
 
-## Important Files
+## Files
 
-- `patches/desktop-arabic-localization.patch`
-- `scripts/apply-arabic.ps1`
-- `scripts/apply-arabic.sh`
-- `scripts/verify.ps1`
-- `docs/`
+| Path | Purpose |
+| --- | --- |
+| `patches/desktop-arabic-localization.patch` | Desktop Arabic localization patch |
+| `scripts/apply-arabic.ps1` | Windows installer |
+| `scripts/apply-arabic.sh` | macOS/Linux installer |
+| `scripts/verify.ps1` | Verification helper |
+| `docs/` | Installation, update, and troubleshooting notes |
 
 ## Credits
 
@@ -100,5 +125,6 @@ Arabic desktop localization maintained by:
 
 - Ali Asiri
 - Email: assiri@gmail.com
+- X: [@3ssiri](https://x.com/3ssiri)
 
 Hermes Agent remains owned and licensed by its original authors and contributors.

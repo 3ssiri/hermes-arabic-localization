@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="260" viewBox="0 0 1120 260" role="img" aria-labelledby="title desc">
+  <title id="title">Installation Flow</title>
+  <desc id="desc">Patch, verify, configure Arabic, and build Hermes Desktop.</desc>
+  <defs>
+    <linearGradient id="box" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#152130"/>
+      <stop offset="1" stop-color="#0d141d"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#d4aa49"/>
+    </marker>
+  </defs>
+  <rect width="1120" height="260" rx="28" fill="#0c1117"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <g transform="translate(50 55)">
+      <rect width="210" height="130" rx="18" fill="url(#box)" stroke="#2b3c4f"/>
+      <text x="105" y="58" text-anchor="middle" fill="#f7fafc" font-size="25" font-weight="700">Patch</text>
+      <text x="105" y="92" text-anchor="middle" fill="#9fb0c0" font-size="16">apply localization diff</text>
+    </g>
+    <g transform="translate(320 55)">
+      <rect width="210" height="130" rx="18" fill="url(#box)" stroke="#2b3c4f"/>
+      <text x="105" y="58" text-anchor="middle" fill="#f7fafc" font-size="25" font-weight="700">Configure</text>
+      <text x="105" y="92" text-anchor="middle" fill="#9fb0c0" font-size="16">display.language: ar</text>
+    </g>
+    <g transform="translate(590 55)">
+      <rect width="210" height="130" rx="18" fill="url(#box)" stroke="#2b3c4f"/>
+      <text x="105" y="58" text-anchor="middle" fill="#f7fafc" font-size="25" font-weight="700">Verify</text>
+      <text x="105" y="92" text-anchor="middle" fill="#9fb0c0" font-size="16">typecheck + i18n tests</text>
+    </g>
+    <g transform="translate(860 55)">
+      <rect width="210" height="130" rx="18" fill="url(#box)" stroke="#2b3c4f"/>
+      <text x="105" y="58" text-anchor="middle" fill="#f7fafc" font-size="25" font-weight="700">Build</text>
+      <text x="105" y="92" text-anchor="middle" fill="#9fb0c0" font-size="16">packaged desktop app</text>
+    </g>
+    <path d="M270 120h42" stroke="#d4aa49" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M540 120h42" stroke="#d4aa49" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M810 120h42" stroke="#d4aa49" stroke-width="4" marker-end="url(#arrow)"/>
+  </g>
+</svg>
