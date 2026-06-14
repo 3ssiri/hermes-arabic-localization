@@ -1,0 +1,20 @@
+{
+  "name": "hermes-arabic-localization",
+  "description": "Community Arabic localization patch for Hermes Desktop",
+  "maintainer": {
+    "name": "Ali Asiri",
+    "email": "assiri@gmail.com"
+  },
+  "upstream": {
+    "repository": "https://github.com/NousResearch/hermes-agent",
+    "pullRequest": "https://github.com/NousResearch/hermes-agent/pull/45619",
+    "baseCommit": "2c174bce2408f5d6810b0f16dbd55cb65cd1c6e3"
+  },
+  "patches": [
+    {
+      "file": "patches/desktop-arabic-localization.patch",
+      "scope": "apps/desktop",
+      "description": "Arabic locale, RTL wiring, settings copy, provider/accounts copy, credential rows, MCP, archived chats, and tests"
+    }
+  ]
+}
