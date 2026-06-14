@@ -1,0 +1,35 @@
+name: Issue watch
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  issues: write
+
+jobs:
+  acknowledge:
+    name: Mark issue for review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Add review label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh label create "needs-review" --color "fbca04" --description "Needs maintainer review" 2>/dev/null || true
+          gh issue edit "${ISSUE_NUMBER}" --add-label "needs-review"
+
+      - name: Add acknowledgement comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh issue comment "${ISSUE_NUMBER}" --body "Thanks for reporting this. It has been marked for maintainer review and will be checked against the Arabic localization patch and desktop verification path."

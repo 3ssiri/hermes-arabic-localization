@@ -118,6 +118,7 @@ npm run test:ui -- src/i18n/runtime.test.ts src/i18n/languages.test.ts src/i18n/
 | `scripts/apply-arabic.sh` | macOS/Linux installer |
 | `scripts/verify.ps1` | Verification helper |
 | `docs/` | Installation, update, and troubleshooting notes |
+| `.github/workflows/` | Scheduled upstream and issue monitoring |
 
 ## Credits
 

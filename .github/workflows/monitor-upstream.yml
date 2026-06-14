@@ -1,0 +1,134 @@
+name: Monitor upstream compatibility
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monitor-upstream
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check latest Hermes Desktop
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout localization package
+        uses: actions/checkout@v4
+
+      - name: Read tracked upstream commit
+        id: tracked
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_commit="$(node -p "require('./src/manifest.json').upstream.baseCommit")"
+          echo "base_commit=${base_commit}" >> "${GITHUB_OUTPUT}"
+
+      - name: Clone Hermes upstream
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/NousResearch/hermes-agent.git "${RUNNER_TEMP}/hermes-agent"
+          latest_commit="$(git -C "${RUNNER_TEMP}/hermes-agent" rev-parse HEAD)"
+          echo "latest_commit=${latest_commit}" >> "${GITHUB_ENV}"
+          echo "Latest upstream commit: ${latest_commit}" >> "${GITHUB_STEP_SUMMARY}"
+          echo "Tracked upstream commit: ${{ steps.tracked.outputs.base_commit }}" >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Install upstream desktop dependencies
+        working-directory: ${{ runner.temp }}/hermes-agent
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f package-lock.json ]]; then
+            npm ci
+          elif [[ -f pnpm-lock.yaml ]]; then
+            corepack enable
+            pnpm install --frozen-lockfile
+          elif [[ -f yarn.lock ]]; then
+            corepack enable
+            yarn install --immutable || yarn install --frozen-lockfile
+          else
+            npm install
+          fi
+
+      - name: Apply Arabic patch and run desktop checks
+        id: compatibility
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          bash scripts/apply-arabic.sh \
+            --hermes-path "${RUNNER_TEMP}/hermes-agent" \
+            --branch ci-arabic-monitor \
+            --no-language-config 2>&1 | tee "${RUNNER_TEMP}/arabic-monitor.log"
+
+      - name: Upload monitor log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arabic-monitor-log
+          path: ${{ runner.temp }}/arabic-monitor.log
+          if-no-files-found: ignore
+
+      - name: Open or update failure issue
+        if: steps.compatibility.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          LATEST_COMMIT: ${{ env.latest_commit }}
+          TRACKED_COMMIT: ${{ steps.tracked.outputs.base_commit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          title="Arabic localization monitor: upstream compatibility needs review"
+          body_file="${RUNNER_TEMP}/monitor-issue.md"
+          {
+            echo "The scheduled upstream compatibility check failed."
+            echo
+            echo "- Tracked upstream commit: \`${TRACKED_COMMIT}\`"
+            echo "- Latest upstream commit: \`${LATEST_COMMIT}\`"
+            echo "- Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo "Required review:"
+            echo
+            echo "1. Pull the latest Hermes upstream changes."
+            echo "2. Re-apply the Arabic localization patch."
+            echo "3. Update the patch if upstream changed the desktop i18n surface."
+            echo "4. Run the desktop typecheck and i18n tests before publishing."
+          } > "${body_file}"
+
+          gh label create "maintenance" --color "d4a72c" --description "Repository maintenance follow-up" 2>/dev/null || true
+
+          issue_number="$(gh issue list --state open --search "${title} in:title" --json number --jq '.[0].number // empty')"
+          if [[ -n "${issue_number}" ]]; then
+            gh issue comment "${issue_number}" --body-file "${body_file}"
+          else
+            gh issue create --title "${title}" --body-file "${body_file}" --label "maintenance"
+          fi
+
+          exit 1
+
+      - name: Update tracked upstream commit after passing checks
+        if: steps.compatibility.outcome == 'success' && env.latest_commit != steps.tracked.outputs.base_commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = 'src/manifest.json';
+          const manifest = JSON.parse(fs.readFileSync(path, 'utf8'));
+          manifest.upstream.baseCommit = process.env.latest_commit;
+          fs.writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
+          NODE
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/manifest.json
+          git commit -m "chore: update monitored Hermes upstream commit"
+          git push

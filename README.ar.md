@@ -121,6 +121,7 @@ npm run test:ui -- src/i18n/runtime.test.ts src/i18n/languages.test.ts src/i18n/
 | `scripts/apply-arabic.sh` | تطبيق التعريب على macOS/Linux |
 | `scripts/verify.ps1` | تشغيل فحوصات التعريب |
 | `docs/` | شروحات التثبيت والتحديث وحل المشاكل |
+| `.github/workflows/` | متابعة تحديثات Hermes والمشاكل المجدولة |
 
 ## الحقوق
 
