@@ -2,7 +2,7 @@ name: Monitor upstream compatibility
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 */12 * * *"
   workflow_dispatch:
 
 permissions:
@@ -40,7 +40,24 @@ jobs:
           echo "Latest upstream commit: ${latest_commit}" >> "${GITHUB_STEP_SUMMARY}"
           echo "Tracked upstream commit: ${{ steps.tracked.outputs.base_commit }}" >> "${GITHUB_STEP_SUMMARY}"
 
+      - name: Decide whether to run full compatibility check
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "full_check=true" >> "${GITHUB_OUTPUT}"
+            echo "Manual run: full compatibility check enabled." >> "${GITHUB_STEP_SUMMARY}"
+          elif [[ "${latest_commit}" != "${{ steps.tracked.outputs.base_commit }}" ]]; then
+            echo "full_check=true" >> "${GITHUB_OUTPUT}"
+            echo "Upstream changed: full compatibility check enabled." >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "full_check=false" >> "${GITHUB_OUTPUT}"
+            echo "No upstream change detected; skipping dependency install and desktop tests." >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
       - name: Install upstream desktop dependencies
+        if: steps.changes.outputs.full_check == 'true'
         working-directory: ${{ runner.temp }}/hermes-agent
         shell: bash
         run: |
@@ -58,6 +75,7 @@ jobs:
           fi
 
       - name: Apply Arabic patch and run desktop checks
+        if: steps.changes.outputs.full_check == 'true'
         id: compatibility
         continue-on-error: true
         shell: bash
@@ -69,7 +87,7 @@ jobs:
             --no-language-config 2>&1 | tee "${RUNNER_TEMP}/arabic-monitor.log"
 
       - name: Upload monitor log
-        if: always()
+        if: always() && steps.changes.outputs.full_check == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: arabic-monitor-log
@@ -77,7 +95,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Open or update failure issue
-        if: steps.compatibility.outcome == 'failure'
+        if: steps.changes.outputs.full_check == 'true' && steps.compatibility.outcome == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -115,7 +133,7 @@ jobs:
           exit 1
 
       - name: Update tracked upstream commit after passing checks
-        if: steps.compatibility.outcome == 'success' && env.latest_commit != steps.tracked.outputs.base_commit
+        if: steps.changes.outputs.full_check == 'true' && steps.compatibility.outcome == 'success' && env.latest_commit != steps.tracked.outputs.base_commit
         shell: bash
         run: |
           set -euo pipefail
