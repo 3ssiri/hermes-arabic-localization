@@ -5,7 +5,7 @@ Arabic localization package for **Hermes Desktop**.
 This repository does not ship a full modified copy of Hermes. It provides:
 
 - A desktop Arabic localization patch.
-- One-command installer scripts.
+- Installer scripts for Windows, macOS, and Linux.
 - Arabic language configuration.
 - Verification commands to make sure the desktop UI still builds and tests pass.
 
