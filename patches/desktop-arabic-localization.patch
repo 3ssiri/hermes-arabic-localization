@@ -291,10 +291,10 @@ index 5ac21ac..dc4a1d6 100644
          )}
 diff --git a/apps/desktop/src/i18n/ar.ts b/apps/desktop/src/i18n/ar.ts
 new file mode 100644
-index 000000000..f166b7374
+index 0000000..e96a29c
 --- /dev/null
 +++ b/apps/desktop/src/i18n/ar.ts
-@@ -0,0 +1,1461 @@
+@@ -0,0 +1,1460 @@
 +import { defineFieldCopy } from '@/app/settings/field-copy'
 +
 +import { defineLocale } from './define-locale'
@@ -1124,7 +1124,8 @@ index 000000000..f166b7374
 +    gatewayRunning: 'البوابة تعمل',
 +    gatewayStopped: 'البوابة متوقفة',
 +    hermesActiveSessions: (version, count) => `Hermes ${version} لديه ${count} جلسة نشطة`,
-+    restartMessaging: 'إعادة تشغيل المراسلة',
++    restartGateway: 'إعادة تشغيل البوابة',
++    gatewayRestartFailed: 'فشل إعادة تشغيل البوابة.',
 +    updateHermes: 'تحديث Hermes',
 +    actionRunning: 'الإجراء قيد التشغيل',
 +    actionDone: 'اكتمل الإجراء',
@@ -1368,7 +1369,6 @@ index 000000000..f166b7374
 +    shiftClickHint: 'استخدم Shift للتحديد المتعدد',
 +    noWorkspace: 'بدون مساحة عمل',
 +    newSessionIn: label => `جلسة جديدة في ${label}`,
-+    reorderWorkspace: label => `إعادة ترتيب ${label}`,
 +    showMoreIn: (count, label) => `إظهار ${count} أخرى في ${label}`,
 +    loading: 'جار التحميل...',
 +    loadMore: 'تحميل المزيد',
@@ -1628,9 +1628,8 @@ index 000000000..f166b7374
 +      loadingQuestion: 'جار تحميل السؤال...',
 +      other: 'غير ذلك',
 +      placeholder: 'اكتب إجابتك...',
-+      back: 'رجوع',
 +      skip: 'تخطي',
-+      send: 'إرسال'
++      continueLabel: 'متابعة'
 +    },
 +    tool: {
 +      code: 'الكود',
@@ -1700,7 +1699,7 @@ index 000000000..f166b7374
 +    sessionBusy: 'الجلسة مشغولة',
 +    branchStopCurrent: 'أوقف الدور الحالي قبل التفريع',
 +    branchNoText: 'لا يوجد نص للتفريع',
-+    branchTitle: 'تم تفريع المحادثة',
++    branchTitle: n => `مسودة: تفريع #${n}`,
 +    branchFailed: 'فشل التفريع',
 +    deleteFailed: 'فشل الحذف',
 +    archived: 'تمت الأرشفة',
