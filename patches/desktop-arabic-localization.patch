@@ -21,12 +21,12 @@ Subject: [PATCH] feat(desktop): add Arabic localization and RTL support
  create mode 100644 apps/desktop/src/i18n/ar.ts
 
 diff --git a/apps/desktop/src/app/settings/credential-key-ui.tsx b/apps/desktop/src/app/settings/credential-key-ui.tsx
-index e50a1cfa9..e391c738d 100644
+index dc829ae..23b0e49 100644
 --- a/apps/desktop/src/app/settings/credential-key-ui.tsx
 +++ b/apps/desktop/src/app/settings/credential-key-ui.tsx
-@@ -20,13 +20,62 @@ export const CREDENTIAL_CONTROL_CLASS = cn('h-8', CONTROL_TEXT)
- export const isKeyVar = (key: string, info: EnvVarInfo) =>
-   info.is_password || /(?:_API_KEY|_TOKEN|_KEY)$/.test(key)
+@@ -19,13 +19,62 @@ export const CREDENTIAL_CONTROL_CLASS = cn('h-8', CONTROL_TEXT)
+ 
+ export const isKeyVar = (key: string, info: EnvVarInfo) => info.is_password || /(?:_API_KEY|_TOKEN|_KEY)$/.test(key)
  
 -export const friendlyFieldLabel = (key: string, info: EnvVarInfo) =>
 +const translationOr = (path: string, fallback: string): string => {
@@ -88,7 +88,7 @@ index e50a1cfa9..e391c738d 100644
  export const credentialPlaceholder = (key: string, info: EnvVarInfo, label: string): string =>
    isKeyVar(key, info)
      ? translateNow('settings.credentials.pasteLabelKey', label)
-@@ -154,7 +203,7 @@ export function CredentialKeyCard({
+@@ -153,7 +202,7 @@ export function CredentialKeyCard({
    varKey
  }: CredentialKeyCardProps) {
    const docsUrl = info.url?.trim()
@@ -97,7 +97,7 @@ index e50a1cfa9..e391c738d 100644
    const expandable = Boolean(description || docsUrl)
  
    return (
-@@ -234,7 +283,7 @@ export function CredentialKeyCard({
+@@ -230,7 +279,7 @@ export function CredentialKeyCard({
  export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps }: ProviderKeyRowsProps) {
    const { t } = useI18n()
    const docsUrl = group.docsUrl?.trim()
@@ -106,7 +106,7 @@ index e50a1cfa9..e391c738d 100644
    const expandable = Boolean(description || docsUrl || group.advanced.length > 0)
  
    return (
-@@ -309,9 +358,7 @@ export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps
+@@ -305,9 +354,7 @@ export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps
            )}
  
            {group.advanced.map(([key, info]) => {
@@ -117,7 +117,7 @@ index e50a1cfa9..e391c738d 100644
  
              return (
                <ListRow
-@@ -337,6 +384,11 @@ export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps
+@@ -333,6 +380,11 @@ export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps
  }
  
  export function credentialRowLabel(varKey: string, info: EnvVarInfo): string {
@@ -130,16 +130,18 @@ index e50a1cfa9..e391c738d 100644
      return prettyName(varKey.replace(/(?:_API_KEY|_TOKEN|_KEY)$/i, ''))
    }
 diff --git a/apps/desktop/src/app/settings/uninstall-section.tsx b/apps/desktop/src/app/settings/uninstall-section.tsx
-index b9bf98133..97a5c8fa3 100644
+index 5ac21ac..dc4a1d6 100644
 --- a/apps/desktop/src/app/settings/uninstall-section.tsx
 +++ b/apps/desktop/src/app/settings/uninstall-section.tsx
-@@ -4,15 +4,12 @@ import { Button } from '@/components/ui/button'
- import { AlertTriangle, Loader2, Trash2 } from '@/lib/icons'
- import { cn } from '@/lib/utils'
+@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
+ 
+ import { Button } from '@/components/ui/button'
  import type { DesktopUninstallMode, DesktopUninstallSummary } from '@/global'
 +import { useI18n } from '@/i18n'
+ import { AlertTriangle, Loader2, Trash2 } from '@/lib/icons'
+ import { cn } from '@/lib/utils'
  
- import { SectionHeading } from './primitives'
+@@ -9,10 +10,6 @@ import { SectionHeading } from './primitives'
  
  interface ModeOption {
    mode: DesktopUninstallMode
@@ -183,16 +185,16 @@ index b9bf98133..97a5c8fa3 100644
    const [summary, setSummary] = useState<DesktopUninstallSummary | null>(null)
    const [loading, setLoading] = useState(true)
    const [pending, setPending] = useState<DesktopUninstallMode | null>(null)
-@@ -98,7 +88,7 @@ export function UninstallSection() {
-     try {
+@@ -106,7 +96,7 @@ export function UninstallSection() {
        const result = await bridge.run(pending)
+ 
        if (!result.ok) {
 -        setError(result.message || result.error || 'Uninstall could not start.')
 +        setError(result.message || result.error || copy.couldNotStart)
          setRunning(false)
          setPending(null)
        }
-@@ -114,23 +104,23 @@ export function UninstallSection() {
+@@ -122,61 +112,65 @@ export function UninstallSection() {
  
    return (
      <div className="mx-auto mt-8 w-full max-w-2xl">
@@ -215,15 +217,12 @@ index b9bf98133..97a5c8fa3 100644
 +              {copy.confirmMessage(copy.options[pendingOption.mode].consequence)}
              </p>
              {summary?.running_app_path && (
-               <p className="mt-1 font-mono text-[0.68rem] text-muted-foreground/60">
--                App: {summary.running_app_path}
-+                {copy.appPath(summary.running_app_path)}
-               </p>
+-              <p className="mt-1 font-mono text-[0.68rem] text-muted-foreground/60">App: {summary.running_app_path}</p>
++              <p className="mt-1 font-mono text-[0.68rem] text-muted-foreground/60">{copy.appPath(summary.running_app_path)}</p>
              )}
              {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
-@@ -142,21 +132,24 @@ export function UninstallSection() {
-                 variant="destructive"
-               >
+             <div className="mt-3 flex flex-wrap items-center gap-3">
+               <Button disabled={running} onClick={() => void handleConfirm()} size="sm" variant="destructive">
                  {running && <Loader2 className="size-3 animate-spin" />}
 -                {running ? 'Uninstalling…' : 'Yes, uninstall'}
 +                {running ? copy.running : copy.confirmButton}
@@ -244,24 +243,47 @@ index b9bf98133..97a5c8fa3 100644
              </p>
              <div className="mt-1 flex flex-col gap-2">
 -              {visibleOptions.map(opt => (
+-                <button
+-                  className={cn(
+-                    'flex items-start gap-3 rounded-lg border border-border/60 bg-background/40 px-3 py-2.5 text-left transition',
+-                    'hover:border-destructive/40 hover:bg-destructive/5'
+-                  )}
+-                  key={opt.mode}
+-                  onClick={() => {
+-                    setError(null)
+-                    setPending(opt.mode)
+-                  }}
+-                  type="button"
+-                >
+-                  <Trash2 className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+-                  <span className="min-w-0">
+-                    <span className="block text-sm font-medium text-foreground">{opt.title}</span>
+-                    <span className="mt-0.5 block text-xs text-muted-foreground">{opt.description}</span>
+-                  </span>
+-                </button>
+-              ))}
 +              {visibleOptions.map(opt => {
 +                const optionCopy = copy.options[opt.mode]
 +
 +                return (
-                 <button
-                   className={cn(
-                     'flex items-start gap-3 rounded-lg border border-border/60 bg-background/40 px-3 py-2.5 text-left transition',
-@@ -171,11 +164,12 @@ export function UninstallSection() {
-                 >
-                   <Trash2 className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                   <span className="min-w-0">
--                    <span className="block text-sm font-medium text-foreground">{opt.title}</span>
--                    <span className="mt-0.5 block text-xs text-muted-foreground">{opt.description}</span>
-+                    <span className="block text-sm font-medium text-foreground">{optionCopy.title}</span>
-+                    <span className="mt-0.5 block text-xs text-muted-foreground">{optionCopy.description}</span>
-                   </span>
-                 </button>
--              ))}
++                  <button
++                    className={cn(
++                      'flex items-start gap-3 rounded-lg border border-border/60 bg-background/40 px-3 py-2.5 text-left transition',
++                      'hover:border-destructive/40 hover:bg-destructive/5'
++                    )}
++                    key={opt.mode}
++                    onClick={() => {
++                      setError(null)
++                      setPending(opt.mode)
++                    }}
++                    type="button"
++                  >
++                    <Trash2 className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
++                    <span className="min-w-0">
++                      <span className="block text-sm font-medium text-foreground">{optionCopy.title}</span>
++                      <span className="mt-0.5 block text-xs text-muted-foreground">{optionCopy.description}</span>
++                    </span>
++                  </button>
 +                )
 +              })}
              </div>
@@ -2018,7 +2040,7 @@ index 499fc1de6..3cab2b8db 100644
      const boot = TRANSLATIONS.ja.boot as { ready?: string }
      const originalReady = boot.ready
 diff --git a/apps/desktop/src/i18n/types.ts b/apps/desktop/src/i18n/types.ts
-index d93769bbc..4452132d4 100644
+index 54534f9..0a41528 100644
 --- a/apps/desktop/src/i18n/types.ts
 +++ b/apps/desktop/src/i18n/types.ts
 @@ -5,7 +5,7 @@
@@ -2028,9 +2050,9 @@ index d93769bbc..4452132d4 100644
 -export type Locale = 'en' | 'zh' | 'zh-hant' | 'ja'
 +export type Locale = 'en' | 'zh' | 'zh-hant' | 'ja' | 'ar'
  
- interface ModeOptionCopy {
-   label: string
-@@ -319,6 +319,11 @@ export interface Translations {
+ export type ToolTitleKey =
+   | 'browser_click'
+@@ -413,6 +413,11 @@ export interface Translations {
        getKey: string
        saving: string
      }
@@ -2042,7 +2064,7 @@ index d93769bbc..4452132d4 100644
      envActions: {
        actionsFor: (label: string) => string
        credentialActions: string
-@@ -481,6 +486,27 @@ export interface Translations {
+@@ -585,6 +590,27 @@ export interface Translations {
        updateDirFailed: string
        clearDirFailed: string
      }
