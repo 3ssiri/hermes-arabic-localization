@@ -1,13 +1,14 @@
-From 44a72b93025d115c3f3a580c43e1961e02017d0a Mon Sep 17 00:00:00 2001
+From 8cebf2ddfd619abc7eab752ad003f74e5ec6e43b Mon Sep 17 00:00:00 2001
 From: Ali Asiri <assiri@gmail.com>
 Date: Sat, 13 Jun 2026 16:17:27 +0300
 Subject: [PATCH] feat(desktop): add Arabic localization and RTL support
 
 ---
  .../src/app/settings/credential-key-ui.tsx    |   64 +-
- .../src/app/settings/uninstall-section.tsx    |   48 +-
- apps/desktop/src/i18n/ar.ts                   | 1463 +++++++++++++++++
+ .../src/app/settings/uninstall-section.tsx    |   80 +-
+ apps/desktop/src/i18n/ar.ts                   | 2575 +++++++++++++++++
  apps/desktop/src/i18n/catalog.ts              |    4 +-
+ apps/desktop/src/i18n/context.test.tsx        |   33 +
  apps/desktop/src/i18n/context.tsx             |   10 +
  apps/desktop/src/i18n/en.ts                   |   37 +
  apps/desktop/src/i18n/ja.ts                   |   37 +
@@ -17,14 +18,14 @@ Subject: [PATCH] feat(desktop): add Arabic localization and RTL support
  apps/desktop/src/i18n/types.ts                |   28 +-
  apps/desktop/src/i18n/zh-hant.ts              |   37 +
  apps/desktop/src/i18n/zh.ts                   |   37 +
- 13 files changed, 1782 insertions(+), 36 deletions(-)
+ 14 files changed, 2943 insertions(+), 52 deletions(-)
  create mode 100644 apps/desktop/src/i18n/ar.ts
 
 diff --git a/apps/desktop/src/app/settings/credential-key-ui.tsx b/apps/desktop/src/app/settings/credential-key-ui.tsx
-index dc829ae..23b0e49 100644
+index e963c3c..6bb56f0 100644
 --- a/apps/desktop/src/app/settings/credential-key-ui.tsx
 +++ b/apps/desktop/src/app/settings/credential-key-ui.tsx
-@@ -19,13 +19,62 @@ export const CREDENTIAL_CONTROL_CLASS = cn('h-8', CONTROL_TEXT)
+@@ -26,13 +26,62 @@ const CRED_BARE = 'border-0! bg-transparent! shadow-none! h-auto! p-0! @2xl:h-8!
  
  export const isKeyVar = (key: string, info: EnvVarInfo) => info.is_password || /(?:_API_KEY|_TOKEN|_KEY)$/.test(key)
  
@@ -88,7 +89,7 @@ index dc829ae..23b0e49 100644
  export const credentialPlaceholder = (key: string, info: EnvVarInfo, label: string): string =>
    isKeyVar(key, info)
      ? translateNow('settings.credentials.pasteLabelKey', label)
-@@ -153,7 +202,7 @@ export function CredentialKeyCard({
+@@ -169,7 +218,7 @@ export function CredentialKeyCard({
    varKey
  }: CredentialKeyCardProps) {
    const docsUrl = info.url?.trim()
@@ -97,7 +98,7 @@ index dc829ae..23b0e49 100644
    const expandable = Boolean(description || docsUrl)
  
    return (
-@@ -230,7 +279,7 @@ export function CredentialKeyCard({
+@@ -256,7 +305,7 @@ export function CredentialKeyCard({
  export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps }: ProviderKeyRowsProps) {
    const { t } = useI18n()
    const docsUrl = group.docsUrl?.trim()
@@ -106,18 +107,18 @@ index dc829ae..23b0e49 100644
    const expandable = Boolean(description || docsUrl || group.advanced.length > 0)
  
    return (
-@@ -305,9 +354,7 @@ export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps
-           )}
+@@ -340,9 +389,7 @@ export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps
+             )}
  
-           {group.advanced.map(([key, info]) => {
--            const fieldLabel = isKeyVar(key, info)
--              ? prettyName(key.replace(/(?:_API_KEY|_TOKEN|_KEY)$/i, ''))
--              : friendlyFieldLabel(key, info)
-+            const fieldLabel = credentialRowLabel(key, info)
+             {group.advanced.map(([key, info]) => {
+-              const fieldLabel = isKeyVar(key, info)
+-                ? prettyName(key.replace(/(?:_API_KEY|_TOKEN|_KEY)$/i, ''))
+-                : friendlyFieldLabel(key, info)
++              const fieldLabel = credentialRowLabel(key, info)
  
-             return (
-               <ListRow
-@@ -333,6 +380,11 @@ export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps
+               return (
+                 <ListRow
+@@ -370,6 +417,11 @@ export function ProviderKeyRows({ expanded, group, onExpand, onToggle, rowProps
  }
  
  export function credentialRowLabel(varKey: string, info: EnvVarInfo): string {
@@ -291,10 +292,10 @@ index 5ac21ac..dc4a1d6 100644
          )}
 diff --git a/apps/desktop/src/i18n/ar.ts b/apps/desktop/src/i18n/ar.ts
 new file mode 100644
-index 0000000..9c158d8
+index 0000000..4529e1c
 --- /dev/null
 +++ b/apps/desktop/src/i18n/ar.ts
-@@ -0,0 +1,2577 @@
+@@ -0,0 +1,2575 @@
 +import { defineLocale } from './define-locale'
 +
 +export const ar = defineLocale({
@@ -380,7 +381,9 @@ index 0000000..9c158d8
 +      useLocalGateway: 'استخدام البوابة المحلية',
 +      openLogs: 'فتح السجلات',
 +      repairHint: 'يعيد الإصلاح تشغيل المثبت وقد يستغرق بضع دقائق على جهاز جديد.',
-+      remoteSignInHint: 'يفتح نافذة تسجيل دخول البوابة. استخدم البوابة المحلية للتبديل إلى الخلفية المضمنة.',
++      remoteSignInHint: signInLabel =>
++        `يسجّل الخروج من جلسة المتصفح البعيدة المحفوظة، ثم يفتح ${signInLabel}. استخدم البوابة المحلية للتبديل إلى الخلفية المضمنة.`,
++      signOutAndSignIn: 'تسجيل الخروج وإعادة تسجيل الدخول',
 +      hideRecentLogs: 'إخفاء السجلات الأخيرة',
 +      showRecentLogs: 'إظهار السجلات الأخيرة',
 +      signedInTitle: 'تم تسجيل الدخول',
@@ -451,8 +454,7 @@ index 0000000..9c158d8
 +    }
 +  },
 +  remoteDisplayBanner: {
-+    message: reason => `العرض البرمجي نشط — تم اكتشاف شاشة بعيدة (${reason}). تم تعطيل تسريع GPU لمنع الوميض.`,
-+    dismiss: 'تجاهل'
++    message: reason => `العرض البرمجي نشط — تم اكتشاف شاشة بعيدة (${reason}). تم تعطيل تسريع GPU لمنع الوميض.`
 +  },
 +  titlebar: {
 +    hideSidebar: 'إخفاء الشريط الجانبي',
@@ -897,8 +899,6 @@ index 0000000..9c158d8
 +      enterValueFirst: 'أدخل قيمة أولا.',
 +      couldNotSave: 'تعذّر حفظ بيانات الاعتماد.',
 +      remove: 'إزالة',
-+      or: 'أو',
-+      escToCancel: 'esc للإلغاء',
 +      getKey: 'احصل على مفتاح',
 +      saving: 'جار الحفظ'
 +    },
@@ -1298,7 +1298,6 @@ index 0000000..9c158d8
 +    ageHours: hours => `قبل ${hours} س`,
 +    durationSeconds: seconds => `${seconds} ث`,
 +    durationMinutes: (minutes, seconds) => `${minutes} د ${seconds} ث`,
-+    tokensK: k => `${k}k رمز`,
 +    tokens: value => `${value} رمز`
 +  },
 +  commandCenter: {
@@ -2873,7 +2872,7 @@ index 0000000..9c158d8
 +  }
 +})
 diff --git a/apps/desktop/src/i18n/catalog.ts b/apps/desktop/src/i18n/catalog.ts
-index 19556cb45..f35c95707 100644
+index 19556cb..f35c957 100644
 --- a/apps/desktop/src/i18n/catalog.ts
 +++ b/apps/desktop/src/i18n/catalog.ts
 @@ -1,3 +1,4 @@
@@ -2889,8 +2888,50 @@ index 19556cb45..f35c95707 100644
 +  ja,
 +  ar
  }
+diff --git a/apps/desktop/src/i18n/context.test.tsx b/apps/desktop/src/i18n/context.test.tsx
+index 3028c86..3000a63 100644
+--- a/apps/desktop/src/i18n/context.test.tsx
++++ b/apps/desktop/src/i18n/context.test.tsx
+@@ -229,4 +229,37 @@ describe('I18nProvider', () => {
+     expect(screen.getByTestId('locale').textContent).toBe('en')
+     expect(screen.getByTestId('label').textContent).toBe('Language')
+   })
++
++  it('applies document lang and direction for Arabic and restores ltr for English', async () => {
++    render(
++      <I18nProvider configClient={null}>
++        <LanguageProbe target="ar" />
++      </I18nProvider>
++    )
++
++    expect(document.documentElement.lang).toBe('en')
++    expect(document.documentElement.dir).toBe('ltr')
++
++    fireEvent.click(screen.getByRole('button', { name: 'switch' }))
++
++    await waitFor(() => expect(screen.getByTestId('locale').textContent).toBe('ar'))
++    expect(document.documentElement.lang).toBe('ar')
++    expect(document.documentElement.dir).toBe('rtl')
++
++    cleanup()
++    render(
++      <I18nProvider configClient={null} initialLocale="ar">
++        <LanguageProbe target="en" />
++      </I18nProvider>
++    )
++
++    expect(document.documentElement.lang).toBe('ar')
++    expect(document.documentElement.dir).toBe('rtl')
++
++    fireEvent.click(screen.getByRole('button', { name: 'switch' }))
++
++    await waitFor(() => expect(screen.getByTestId('locale').textContent).toBe('en'))
++    expect(document.documentElement.lang).toBe('en')
++    expect(document.documentElement.dir).toBe('ltr')
++  })
+ })
 diff --git a/apps/desktop/src/i18n/context.tsx b/apps/desktop/src/i18n/context.tsx
-index 103a63047..9d49561ac 100644
+index 103a630..9d49561 100644
 --- a/apps/desktop/src/i18n/context.tsx
 +++ b/apps/desktop/src/i18n/context.tsx
 @@ -55,6 +55,15 @@ function toError(error: unknown): Error {
@@ -2918,10 +2959,10 @@ index 103a63047..9d49561ac 100644
  
    useEffect(() => {
 diff --git a/apps/desktop/src/i18n/en.ts b/apps/desktop/src/i18n/en.ts
-index 7ac3ee35a..6646bae33 100644
+index 456f9cf..54dbdc6 100644
 --- a/apps/desktop/src/i18n/en.ts
 +++ b/apps/desktop/src/i18n/en.ts
-@@ -421,6 +421,11 @@ export const en: Translations = {
+@@ -509,6 +509,11 @@ export const en: Translations = {
        getKey: 'Get a key',
        saving: 'Saving'
      },
@@ -2933,7 +2974,7 @@ index 7ac3ee35a..6646bae33 100644
      envActions: {
        actionsFor: label => `Actions for ${label}`,
        credentialActions: 'Credential actions',
-@@ -600,6 +605,38 @@ export const en: Translations = {
+@@ -773,6 +778,38 @@ export const en: Translations = {
        updateDirFailed: 'Could not update default directory',
        clearDirFailed: 'Could not clear default directory'
      },
@@ -2973,10 +3014,10 @@ index 7ac3ee35a..6646bae33 100644
        loadingConfig: 'Loading configuration',
        savedTitle: 'Credential saved',
 diff --git a/apps/desktop/src/i18n/ja.ts b/apps/desktop/src/i18n/ja.ts
-index b3719272a..f1d43700a 100644
+index 2ff3152..29e472a 100644
 --- a/apps/desktop/src/i18n/ja.ts
 +++ b/apps/desktop/src/i18n/ja.ts
-@@ -543,6 +543,11 @@ export const ja = defineLocale({
+@@ -621,6 +621,11 @@ export const ja = defineLocale({
        getKey: 'キーを取得',
        saving: '保存中'
      },
@@ -2988,7 +3029,7 @@ index b3719272a..f1d43700a 100644
      envActions: {
        actionsFor: label => `${label} のアクション`,
        credentialActions: '認証情報のアクション',
-@@ -730,6 +735,38 @@ export const ja = defineLocale({
+@@ -824,6 +829,38 @@ export const ja = defineLocale({
        updateDirFailed: 'デフォルトディレクトリを更新できませんでした',
        clearDirFailed: 'デフォルトディレクトリをクリアできませんでした'
      },
@@ -3028,7 +3069,7 @@ index b3719272a..f1d43700a 100644
        loadingConfig: '設定を読み込み中',
        savedTitle: '認証情報を保存しました',
 diff --git a/apps/desktop/src/i18n/languages.test.ts b/apps/desktop/src/i18n/languages.test.ts
-index 792aad5f5..90c57ff9e 100644
+index 792aad5..90c57ff 100644
 --- a/apps/desktop/src/i18n/languages.test.ts
 +++ b/apps/desktop/src/i18n/languages.test.ts
 @@ -15,6 +15,9 @@ describe('desktop i18n languages', () => {
@@ -3063,10 +3104,10 @@ index 792aad5f5..90c57ff9e 100644
    })
  })
 diff --git a/apps/desktop/src/i18n/languages.ts b/apps/desktop/src/i18n/languages.ts
-index 5b4990f49..92bd492d2 100644
+index 96daf9b..4cfdb72 100644
 --- a/apps/desktop/src/i18n/languages.ts
 +++ b/apps/desktop/src/i18n/languages.ts
-@@ -26,6 +26,12 @@ export const LOCALE_OPTIONS = [
+@@ -28,6 +28,12 @@ export const LOCALE_OPTIONS = [
      name: '日本語',
      englishName: 'Japanese',
      configValue: 'ja'
@@ -3079,7 +3120,7 @@ index 5b4990f49..92bd492d2 100644
    }
  ] as const satisfies readonly { configValue: string; englishName: string; id: Locale; name: string }[]
  
-@@ -62,7 +68,16 @@ const LOCALE_ALIASES: Record<string, Locale> = {
+@@ -64,7 +70,16 @@ const LOCALE_ALIASES: Record<string, Locale> = {
    zh_hant_hk: 'zh-hant',
    ja: 'ja',
    'ja-jp': 'ja',
@@ -3098,7 +3139,7 @@ index 5b4990f49..92bd492d2 100644
  
  export function isLocale(value: unknown): value is Locale {
 diff --git a/apps/desktop/src/i18n/runtime.test.ts b/apps/desktop/src/i18n/runtime.test.ts
-index 499fc1de6..3cab2b8db 100644
+index 499fc1d..3cab2b8 100644
 --- a/apps/desktop/src/i18n/runtime.test.ts
 +++ b/apps/desktop/src/i18n/runtime.test.ts
 @@ -1,9 +1,11 @@
@@ -3156,7 +3197,7 @@ index 499fc1de6..3cab2b8db 100644
      const boot = TRANSLATIONS.ja.boot as { ready?: string }
      const originalReady = boot.ready
 diff --git a/apps/desktop/src/i18n/types.ts b/apps/desktop/src/i18n/types.ts
-index 54534f9..0a41528 100644
+index 66709b4..5599e84 100644
 --- a/apps/desktop/src/i18n/types.ts
 +++ b/apps/desktop/src/i18n/types.ts
 @@ -5,7 +5,7 @@
@@ -3168,7 +3209,7 @@ index 54534f9..0a41528 100644
  
  export type ToolTitleKey =
    | 'browser_click'
-@@ -413,6 +413,11 @@ export interface Translations {
+@@ -423,6 +423,11 @@ export interface Translations {
        getKey: string
        saving: string
      }
@@ -3180,7 +3221,7 @@ index 54534f9..0a41528 100644
      envActions: {
        actionsFor: (label: string) => string
        credentialActions: string
-@@ -585,6 +590,27 @@ export interface Translations {
+@@ -664,6 +669,27 @@ export interface Translations {
        updateDirFailed: string
        clearDirFailed: string
      }
@@ -3209,10 +3250,10 @@ index 54534f9..0a41528 100644
        loadingConfig: string
        savedTitle: string
 diff --git a/apps/desktop/src/i18n/zh-hant.ts b/apps/desktop/src/i18n/zh-hant.ts
-index a6607c534..6d443fa7b 100644
+index d5a04e3..9268635 100644
 --- a/apps/desktop/src/i18n/zh-hant.ts
 +++ b/apps/desktop/src/i18n/zh-hant.ts
-@@ -532,6 +532,11 @@ export const zhHant = defineLocale({
+@@ -610,6 +610,11 @@ export const zhHant = defineLocale({
        getKey: '取得金鑰',
        saving: '儲存中'
      },
@@ -3224,7 +3265,7 @@ index a6607c534..6d443fa7b 100644
      envActions: {
        actionsFor: label => `${label} 的動作`,
        credentialActions: '憑證動作',
-@@ -705,6 +710,38 @@ export const zhHant = defineLocale({
+@@ -799,6 +804,38 @@ export const zhHant = defineLocale({
        updateDirFailed: '無法更新預設目錄',
        clearDirFailed: '無法清除預設目錄'
      },
@@ -3264,10 +3305,10 @@ index a6607c534..6d443fa7b 100644
        loadingConfig: '正在載入設定',
        savedTitle: '憑證已儲存',
 diff --git a/apps/desktop/src/i18n/zh.ts b/apps/desktop/src/i18n/zh.ts
-index 7fac54c0f..332aa8d72 100644
+index 83000e9..ba30bde 100644
 --- a/apps/desktop/src/i18n/zh.ts
 +++ b/apps/desktop/src/i18n/zh.ts
-@@ -619,6 +619,11 @@ export const zh: Translations = {
+@@ -701,6 +701,11 @@ export const zh: Translations = {
        getKey: '获取密钥',
        saving: '保存中'
      },
@@ -3279,7 +3320,7 @@ index 7fac54c0f..332aa8d72 100644
      envActions: {
        actionsFor: label => `${label} 的操作`,
        credentialActions: '凭据操作',
-@@ -792,6 +797,38 @@ export const zh: Translations = {
+@@ -957,6 +962,38 @@ export const zh: Translations = {
        updateDirFailed: '无法更新默认目录',
        clearDirFailed: '无法清除默认目录'
      },
@@ -3319,5 +3360,5 @@ index 7fac54c0f..332aa8d72 100644
        loadingConfig: '正在加载配置',
        savedTitle: '凭据已保存',
 -- 
-2.54.0.windows.1
+2.43.0
 
