@@ -1,28 +1,5 @@
-From 8cebf2ddfd619abc7eab752ad003f74e5ec6e43b Mon Sep 17 00:00:00 2001
-From: Ali Asiri <assiri@gmail.com>
-Date: Sat, 13 Jun 2026 16:17:27 +0300
-Subject: [PATCH] feat(desktop): add Arabic localization and RTL support
-
----
- .../src/app/settings/credential-key-ui.tsx    |   64 +-
- .../src/app/settings/uninstall-section.tsx    |   80 +-
- apps/desktop/src/i18n/ar.ts                   | 2575 +++++++++++++++++
- apps/desktop/src/i18n/catalog.ts              |    4 +-
- apps/desktop/src/i18n/context.test.tsx        |   33 +
- apps/desktop/src/i18n/context.tsx             |   10 +
- apps/desktop/src/i18n/en.ts                   |   37 +
- apps/desktop/src/i18n/ja.ts                   |   37 +
- apps/desktop/src/i18n/languages.test.ts       |    6 +
- apps/desktop/src/i18n/languages.ts            |   17 +-
- apps/desktop/src/i18n/runtime.test.ts         |   30 +
- apps/desktop/src/i18n/types.ts                |   28 +-
- apps/desktop/src/i18n/zh-hant.ts              |   37 +
- apps/desktop/src/i18n/zh.ts                   |   37 +
- 14 files changed, 2943 insertions(+), 52 deletions(-)
- create mode 100644 apps/desktop/src/i18n/ar.ts
-
 diff --git a/apps/desktop/src/app/settings/credential-key-ui.tsx b/apps/desktop/src/app/settings/credential-key-ui.tsx
-index e963c3c..6bb56f0 100644
+index e963c3c0f83da11bbbf549fd9d86bd7c49299689..6bb56f0af43e7c712534112b90ef3e3994c7cb4c 100644
 --- a/apps/desktop/src/app/settings/credential-key-ui.tsx
 +++ b/apps/desktop/src/app/settings/credential-key-ui.tsx
 @@ -26,13 +26,62 @@ const CRED_BARE = 'border-0! bg-transparent! shadow-none! h-auto! p-0! @2xl:h-8!
@@ -131,7 +108,7 @@ index e963c3c..6bb56f0 100644
      return prettyName(varKey.replace(/(?:_API_KEY|_TOKEN|_KEY)$/i, ''))
    }
 diff --git a/apps/desktop/src/app/settings/uninstall-section.tsx b/apps/desktop/src/app/settings/uninstall-section.tsx
-index 5ac21ac..dc4a1d6 100644
+index 5ac21ac80e7f0a69273ddf4901fc9a92af34a547..dc4a1d6e4d822a9c1f1827d6a11a39be6b5e1fb5 100644
 --- a/apps/desktop/src/app/settings/uninstall-section.tsx
 +++ b/apps/desktop/src/app/settings/uninstall-section.tsx
 @@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
@@ -292,10 +269,10 @@ index 5ac21ac..dc4a1d6 100644
          )}
 diff --git a/apps/desktop/src/i18n/ar.ts b/apps/desktop/src/i18n/ar.ts
 new file mode 100644
-index 0000000..4529e1c
+index 0000000000000000000000000000000000000000..d69553ee8191665a04211e33091f185ac1bc04ad
 --- /dev/null
 +++ b/apps/desktop/src/i18n/ar.ts
-@@ -0,0 +1,2575 @@
+@@ -0,0 +1,2659 @@
 +import { defineLocale } from './define-locale'
 +
 +export const ar = defineLocale({
@@ -468,11 +445,15 @@ index 0000000..4529e1c
 +    muteHaptics: 'كتم الاهتزازات',
 +    unmuteHaptics: 'تفعيل الاهتزازات',
 +    openSettings: 'فتح الإعدادات',
-+    openKeybinds: 'اختصارات لوحة المفاتيح'
++    openStarmap: 'فتح خريطة الذاكرة',
++    openKeybinds: 'اختصارات لوحة المفاتيح',
++    layoutEditor: 'محرر التخطيط',
++    layoutEditorTitle: 'محرر التخطيط — انقر مع ⌘ لإعادة ضبط التخطيط'
 +  },
 +  keybinds: {
 +    title: 'اختصارات لوحة المفاتيح',
 +    subtitle: open => `انقر على اختصار لإعادة تعيينه · ${open} يعيد فتح هذه اللوحة.`,
++    search: 'ابحث في الاختصارات...',
 +    rebind: 'إعادة تعيين',
 +    reset: 'إعادة إلى الافتراضي',
 +    resetAll: 'إعادة تعيين الكل',
@@ -498,6 +479,7 @@ index 0000000..4529e1c
 +      'nav.cron': 'فتح المهام المجدولة',
 +      'nav.agents': 'فتح الوكلاء',
 +      'session.new': 'جلسة جديدة',
++      'session.newTab': 'علامة تبويب جلسة جديدة',
 +      'session.newWindow': 'جلسة جديدة في نافذة',
 +      'session.next': 'الجلسة التالية',
 +      'session.prev': 'الجلسة السابقة',
@@ -521,6 +503,8 @@ index 0000000..4529e1c
 +      'view.toggleReview': 'تبديل لوحة المراجعة',
 +      'view.showFiles': 'إظهار متصفح الملفات',
 +      'view.showTerminal': 'إظهار الطرفية',
++      'view.closeTab': 'إغلاق علامة التبويب',
++      'view.reopenTab': 'إعادة فتح علامة التبويب المغلقة',
 +      'view.terminalSelection': 'إرسال تحديد الطرفية إلى المحرّر',
 +      'view.closePreviewTab': 'إغلاق علامة تبويب المعاينة',
 +      'view.flipPanes': 'تبديل جانبي الشريط الجانبي',
@@ -587,7 +571,23 @@ index 0000000..4529e1c
 +      mcp: 'MCP',
 +      archivedChats: 'المحادثات المؤرشفة',
 +      about: 'حول',
-+      notifications: 'الإشعارات'
++      notifications: 'الإشعارات',
++      keybinds: 'اختصارات لوحة المفاتيح',
++      plugins: 'الإضافات'
++    },
++    plugins: {
++      title: 'إضافات سطح المكتب',
++      blurb:
++        'امتدادات واجهة تُحمّل داخل هذا التطبيق — إما مضمّنة مع البناء، أو موضوعة في مجلد desktop-plugins (بما فيها التي يكتبها Hermes). تعطيل الإضافة يفرغها مباشرة ويبقى بعد إعادة التشغيل.',
++      count: n => `${n} مثبتة`,
++      openFolder: 'فتح مجلد الإضافات',
++      rescan: 'إعادة الفحص',
++      reveal: 'إظهار في مدير الملفات',
++      enable: 'تفعيل',
++      disable: 'تعطيل',
++      failed: 'فشل',
++      empty: 'لا توجد إضافات سطح مكتب مثبتة بعد.',
++      kinds: { bundled: 'مضمّنة', disk: 'على القرص', runtime: 'وقت التشغيل' }
 +    },
 +    notifications: {
 +      title: 'الإشعارات',
@@ -668,6 +668,8 @@ index 0000000..4529e1c
 +      toolViewDesc: 'تحكم في كيفية عرض نشاط الأدوات داخل المحادثة.',
 +      translucencyTitle: 'شفافية النافذة',
 +      translucencyDesc: 'إظهار سطح المكتب من خلال النافذة بالكامل. متاح على macOS وWindows فقط.',
++      backdropTitle: 'خلفية النافذة',
++      backdropDesc: 'اختيار مقدار مزج خلفية سطح المكتب مع سطح Hermes.',
 +      embedsTitle: 'التضمينات المضمّنة',
 +      embedsDesc:
 +        'تُحمّل المعاينات الغنية من مواقع طرف ثالث (YouTube، X، …). "اسأل" يعرض عنصرا نائبا حتى تسمح لكل واحد؛ "دائما" يحمّلها تلقائيا؛ "إيقاف" يبقي الروابط عادية.',
@@ -1151,6 +1153,10 @@ index 0000000..4529e1c
 +      noProviderKeys: 'لا توجد مفاتيح API متاحة للمزودين.',
 +      searchKeys: 'البحث عن مزوّدين...',
 +      noKeysMatch: 'لا يوجد مزوّدون يطابقون بحثك.',
++      localEndpoint: {
++        title: 'نقطة نهاية محلية',
++        description: 'استخدم خادما محليا أو نقطة نهاية متوافقة مع OpenAI لهذا المزود.'
++      },
 +      loading: 'جار تحميل المزودين...'
 +    },
 +    sessions: {
@@ -1372,6 +1378,7 @@ index 0000000..4529e1c
 +    settingsFields: 'حقول الإعدادات',
 +    mcpServers: 'خوادم MCP',
 +    archivedChats: 'المحادثات المؤرشفة',
++    commands: 'الأوامر',
 +    sections: {
 +      sessions: 'الجلسات',
 +      system: 'النظام',
@@ -1959,6 +1966,13 @@ index 0000000..4529e1c
 +      sessionRunning: 'الجلسة تعمل',
 +      needsInput: 'تحتاج إدخالا',
 +      waitingForAnswer: 'بانتظار إجابة',
++      backgroundRunning: 'تعمل في الخلفية',
++      finishedUnread: 'اكتملت وفيها جديد',
++      hideTabBar: 'إخفاء شريط التبويبات',
++      openInNewTab: 'فتح في تبويب جديد',
++      openInSplit: 'فتح في تقسيم',
++      ownedByProfile: profile => `مملوكة للملف الشخصي ${profile}`,
++      untitledChat: id => `محادثة ${id}`,
 +      handoffOrigin: platform => `قادمة من ${platform}`,
 +      renamed: 'تمت إعادة التسمية',
 +      renameFailed: 'فشلت إعادة التسمية',
@@ -2246,6 +2260,7 @@ index 0000000..4529e1c
 +    recommended: 'موصى به',
 +    connected: 'متصل',
 +    featuredPitch: 'اشتراك واحد، أكثر من 300 نموذج متقدم — الطريقة الموصى بها لتشغيل Hermes',
++    fireworksPitch: 'نماذج مفتوحة سريعة مع استضافة Fireworks.',
 +    openRouterPitch: 'مفتاح واحد لمئات النماذج — خيار افتراضي جيد',
 +    apiKeyOptions: {
 +      openrouter: {
@@ -2419,6 +2434,7 @@ index 0000000..4529e1c
 +      noModel: 'لا يوجد نموذج',
 +      switchModel: 'تبديل النموذج',
 +      openModelPicker: 'فتح اختيار النموذج',
++      modelPinned: 'النموذج مثبت',
 +      modelTitle: (provider, model) => `${provider}: ${model}`,
 +      providerModelTitle: (provider, model) => `${provider}: ${model}`
 +    }
@@ -2546,6 +2562,51 @@ index 0000000..4529e1c
 +      openTarget: url => `فتح ${url}`,
 +      fallbackTitle: 'معاينة'
 +    }
++  },
++  zones: {
++    showHeader: 'إظهار الرأس',
++    hideHeader: 'إخفاء الرأس',
++    minimize: 'تصغير',
++    restore: 'استعادة',
++    closeRunningTitle: 'إغلاق تبويب يعمل؟',
++    closeRunningBody:
++      'هذه المحادثة ما زالت تعمل (أو تنتظر إدخالك). إغلاق التبويب يخفيها فقط — ستحتفظ الجلسة بتقدمها ويمكن إعادة فتحها من الشريط الجانبي.',
++    closeRunningConfirm: 'إغلاق التبويب',
++    closeOthers: 'إغلاق الأخرى',
++    closeToRight: 'إغلاق ما على اليمين',
++    closeAll: 'إغلاق الكل',
++    split: dir => `تقسيم ${dir}`,
++    move: dir => `نقل ${dir}`,
++    dirUp: 'للأعلى',
++    dirDown: 'للأسفل',
++    dirLeft: 'لليسار',
++    dirRight: 'لليمين',
++    pluginDisabled: pluginId => `الإضافة "${pluginId}" معطلة`,
++    pluginDisabledBody: 'أعد تفعيلها من الإعدادات ← الإضافات لإرجاع اللوحة.',
++    missingPane: paneId => `لوحة مفقودة: ${paneId}`,
++    editTitle: 'التخطيطات',
++    editHint: 'اختر تخطيطا، أو اسحب اللوحات بين المناطق. انقر بزر الفأرة الأيمن على منطقة لتقسيمها.',
++    reset: 'إعادة ضبط',
++    templates: 'القوالب',
++    custom: 'مخصص',
++    newGridLayout: 'تخطيط شبكة جديد',
++    saveCurrentAs: 'حفظ الترتيب الحالي كقالب',
++    nameLayoutPlaceholder: 'سم هذا التخطيط...',
++    deletePreset: name => `حذف ${name}`,
++    zoneEditorTitle: 'محرر المناطق',
++    editorHintPre: 'انقر للتقسيم · ',
++    editorHintPost: ' يعكس الخط · اسحب عبر المناطق للدمج · اسحب الحواف المشتركة لتغيير الحجم',
++    templateColumns: 'أعمدة',
++    templateRows: 'صفوف',
++    templateGrid: 'شبكة',
++    templatePriority: 'أولوية',
++    zoneTag: index => `منطقة ${index}`,
++    mergeZones: count => `دمج ${count} مناطق`,
++    customZoneName: count => `مخصص من ${count} مناطق`,
++    layoutNamePlaceholder: fallback => `اسم التخطيط (${fallback})`,
++    saveApply: 'حفظ وتطبيق',
++    notExpressible: 'هذا الترتيب متشابك — لا يمكن تمثيله كتقسيمات متداخلة بعد',
++    zoneCount: count => `${count} مناطق`
 +  },
 +  assistant: {
 +    thread: {
@@ -2872,7 +2933,7 @@ index 0000000..4529e1c
 +  }
 +})
 diff --git a/apps/desktop/src/i18n/catalog.ts b/apps/desktop/src/i18n/catalog.ts
-index 19556cb..f35c957 100644
+index 19556cb45c49178afe6e797c379f4c2b45f26eb1..f35c957076db287b057696bdbaacde7d7f1a5319 100644
 --- a/apps/desktop/src/i18n/catalog.ts
 +++ b/apps/desktop/src/i18n/catalog.ts
 @@ -1,3 +1,4 @@
@@ -2889,7 +2950,7 @@ index 19556cb..f35c957 100644
 +  ar
  }
 diff --git a/apps/desktop/src/i18n/context.test.tsx b/apps/desktop/src/i18n/context.test.tsx
-index 3028c86..3000a63 100644
+index 3028c86ffa07d21b6de2799eea64f49fbd443a5a..3000a63855353314fce7f2946d9bcc8a0dcb8451 100644
 --- a/apps/desktop/src/i18n/context.test.tsx
 +++ b/apps/desktop/src/i18n/context.test.tsx
 @@ -229,4 +229,37 @@ describe('I18nProvider', () => {
@@ -2931,7 +2992,7 @@ index 3028c86..3000a63 100644
 +  })
  })
 diff --git a/apps/desktop/src/i18n/context.tsx b/apps/desktop/src/i18n/context.tsx
-index 103a630..9d49561 100644
+index 103a63047e77b9e107e8d6e6754433b5ddde165a..9d49561ac4696d9397f3cb9249ce5e73db71f3b9 100644
 --- a/apps/desktop/src/i18n/context.tsx
 +++ b/apps/desktop/src/i18n/context.tsx
 @@ -55,6 +55,15 @@ function toError(error: unknown): Error {
@@ -2959,10 +3020,10 @@ index 103a630..9d49561 100644
  
    useEffect(() => {
 diff --git a/apps/desktop/src/i18n/en.ts b/apps/desktop/src/i18n/en.ts
-index 456f9cf..54dbdc6 100644
+index a5262b6ba65cab5943af6fd2adc3282a86954226..1c8a073b0bc9633d2bdb13b6d0dc0e2ad589f308 100644
 --- a/apps/desktop/src/i18n/en.ts
 +++ b/apps/desktop/src/i18n/en.ts
-@@ -509,6 +509,11 @@ export const en: Translations = {
+@@ -532,6 +532,11 @@ export const en: Translations = {
        getKey: 'Get a key',
        saving: 'Saving'
      },
@@ -2974,7 +3035,7 @@ index 456f9cf..54dbdc6 100644
      envActions: {
        actionsFor: label => `Actions for ${label}`,
        credentialActions: 'Credential actions',
-@@ -773,6 +778,38 @@ export const en: Translations = {
+@@ -799,6 +804,38 @@ export const en: Translations = {
        updateDirFailed: 'Could not update default directory',
        clearDirFailed: 'Could not clear default directory'
      },
@@ -3014,10 +3075,10 @@ index 456f9cf..54dbdc6 100644
        loadingConfig: 'Loading configuration',
        savedTitle: 'Credential saved',
 diff --git a/apps/desktop/src/i18n/ja.ts b/apps/desktop/src/i18n/ja.ts
-index 2ff3152..29e472a 100644
+index bd7247976b37292dcc1a29079d4b92742d870aa1..07fc90e0790098ace4d63f0be21fde31fb4b54ad 100644
 --- a/apps/desktop/src/i18n/ja.ts
 +++ b/apps/desktop/src/i18n/ja.ts
-@@ -621,6 +621,11 @@ export const ja = defineLocale({
+@@ -625,6 +625,11 @@ export const ja = defineLocale({
        getKey: 'キーを取得',
        saving: '保存中'
      },
@@ -3029,7 +3090,7 @@ index 2ff3152..29e472a 100644
      envActions: {
        actionsFor: label => `${label} のアクション`,
        credentialActions: '認証情報のアクション',
-@@ -824,6 +829,38 @@ export const ja = defineLocale({
+@@ -832,6 +837,38 @@ export const ja = defineLocale({
        updateDirFailed: 'デフォルトディレクトリを更新できませんでした',
        clearDirFailed: 'デフォルトディレクトリをクリアできませんでした'
      },
@@ -3069,7 +3130,7 @@ index 2ff3152..29e472a 100644
        loadingConfig: '設定を読み込み中',
        savedTitle: '認証情報を保存しました',
 diff --git a/apps/desktop/src/i18n/languages.test.ts b/apps/desktop/src/i18n/languages.test.ts
-index 792aad5..90c57ff 100644
+index 792aad5f586b2c57fd1c1a18153d09cdd2cf5265..90c57ff9ecd98cace6ccd361aa9dbcbaa7e5c66d 100644
 --- a/apps/desktop/src/i18n/languages.test.ts
 +++ b/apps/desktop/src/i18n/languages.test.ts
 @@ -15,6 +15,9 @@ describe('desktop i18n languages', () => {
@@ -3104,7 +3165,7 @@ index 792aad5..90c57ff 100644
    })
  })
 diff --git a/apps/desktop/src/i18n/languages.ts b/apps/desktop/src/i18n/languages.ts
-index 96daf9b..4cfdb72 100644
+index 96daf9b598dd9ce27bc6f0e5b12de6169bb7419e..4cfdb725d2bcdf4176a8010adfab90b625d0312b 100644
 --- a/apps/desktop/src/i18n/languages.ts
 +++ b/apps/desktop/src/i18n/languages.ts
 @@ -28,6 +28,12 @@ export const LOCALE_OPTIONS = [
@@ -3139,7 +3200,7 @@ index 96daf9b..4cfdb72 100644
  
  export function isLocale(value: unknown): value is Locale {
 diff --git a/apps/desktop/src/i18n/runtime.test.ts b/apps/desktop/src/i18n/runtime.test.ts
-index 499fc1d..3cab2b8 100644
+index 499fc1de6c9cae54004e6516947208d57e4a2db2..3cab2b8dbed63fd1de411357461c957622cfda3e 100644
 --- a/apps/desktop/src/i18n/runtime.test.ts
 +++ b/apps/desktop/src/i18n/runtime.test.ts
 @@ -1,9 +1,11 @@
@@ -3197,7 +3258,7 @@ index 499fc1d..3cab2b8 100644
      const boot = TRANSLATIONS.ja.boot as { ready?: string }
      const originalReady = boot.ready
 diff --git a/apps/desktop/src/i18n/types.ts b/apps/desktop/src/i18n/types.ts
-index 66709b4..5599e84 100644
+index 1c38f62013536a032af55b404a312682f2c4eb77..e74e4e22e465aa35e5b93f7856f1e7dd82a7af6a 100644
 --- a/apps/desktop/src/i18n/types.ts
 +++ b/apps/desktop/src/i18n/types.ts
 @@ -5,7 +5,7 @@
@@ -3209,7 +3270,7 @@ index 66709b4..5599e84 100644
  
  export type ToolTitleKey =
    | 'browser_click'
-@@ -423,6 +423,11 @@ export interface Translations {
+@@ -443,6 +443,11 @@ export interface Translations {
        getKey: string
        saving: string
      }
@@ -3221,7 +3282,7 @@ index 66709b4..5599e84 100644
      envActions: {
        actionsFor: (label: string) => string
        credentialActions: string
-@@ -664,6 +669,27 @@ export interface Translations {
+@@ -688,6 +693,27 @@ export interface Translations {
        updateDirFailed: string
        clearDirFailed: string
      }
@@ -3250,10 +3311,10 @@ index 66709b4..5599e84 100644
        loadingConfig: string
        savedTitle: string
 diff --git a/apps/desktop/src/i18n/zh-hant.ts b/apps/desktop/src/i18n/zh-hant.ts
-index d5a04e3..9268635 100644
+index 9aa700ffab7d097aaceaadec46c4309bd3e739f9..66efeeabfb35342c86005bd95206a4bc62db6913 100644
 --- a/apps/desktop/src/i18n/zh-hant.ts
 +++ b/apps/desktop/src/i18n/zh-hant.ts
-@@ -610,6 +610,11 @@ export const zhHant = defineLocale({
+@@ -613,6 +613,11 @@ export const zhHant = defineLocale({
        getKey: '取得金鑰',
        saving: '儲存中'
      },
@@ -3265,7 +3326,7 @@ index d5a04e3..9268635 100644
      envActions: {
        actionsFor: label => `${label} 的動作`,
        credentialActions: '憑證動作',
-@@ -799,6 +804,38 @@ export const zhHant = defineLocale({
+@@ -806,6 +811,38 @@ export const zhHant = defineLocale({
        updateDirFailed: '無法更新預設目錄',
        clearDirFailed: '無法清除預設目錄'
      },
@@ -3305,10 +3366,10 @@ index d5a04e3..9268635 100644
        loadingConfig: '正在載入設定',
        savedTitle: '憑證已儲存',
 diff --git a/apps/desktop/src/i18n/zh.ts b/apps/desktop/src/i18n/zh.ts
-index 83000e9..ba30bde 100644
+index a68a1b2507466b72c22287217ef3ff301202d4aa..6a268a28634d87ee3bc7bb9479e241436a4c27d9 100644
 --- a/apps/desktop/src/i18n/zh.ts
 +++ b/apps/desktop/src/i18n/zh.ts
-@@ -701,6 +701,11 @@ export const zh: Translations = {
+@@ -724,6 +724,11 @@ export const zh: Translations = {
        getKey: '获取密钥',
        saving: '保存中'
      },
@@ -3320,7 +3381,7 @@ index 83000e9..ba30bde 100644
      envActions: {
        actionsFor: label => `${label} 的操作`,
        credentialActions: '凭据操作',
-@@ -957,6 +962,38 @@ export const zh: Translations = {
+@@ -984,6 +989,38 @@ export const zh: Translations = {
        updateDirFailed: '无法更新默认目录',
        clearDirFailed: '无法清除默认目录'
      },
@@ -3359,6 +3420,3 @@ index 83000e9..ba30bde 100644
      toolsets: {
        loadingConfig: '正在加载配置',
        savedTitle: '凭据已保存',
--- 
-2.43.0
-
