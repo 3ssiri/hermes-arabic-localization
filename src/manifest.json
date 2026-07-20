@@ -8,7 +8,7 @@
   "upstream": {
     "repository": "https://github.com/NousResearch/hermes-agent",
     "pullRequest": "https://github.com/NousResearch/hermes-agent/pull/45619",
-    "baseCommit": "b61c033c0bbed79e7f5ae2f44cdbff30ade6ee87",
+    "baseCommit": "183712ab821caf8325d088c343496ca8e12fe3a3",
     "headCommit": "640bda805c6ec48e01644ac976d6f550641bb3de"
   },
   "patches": [
