@@ -16,6 +16,15 @@
 
 # Hermes Arabic Localization
 
+> [!IMPORTANT]
+> **🎉 Mission accomplished — this project has been merged upstream.**
+> As of 2026-07-24, Arabic (with full RTL support) ships natively in Hermes Desktop
+> ([NousResearch/hermes-agent@`5b6990e7a`](https://github.com/NousResearch/hermes-agent/commit/5b6990e7a),
+> co-authored from this repo's translation). You no longer need this patch — just update
+> Hermes and pick Arabic in Settings. This repo is kept for history; the upstream
+> compatibility monitor has been retired. Translation improvements should go directly
+> to [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent).
+
 Arabic interface support for **Hermes Desktop**, distributed as a patch and installer scripts.
 
 The repository keeps the original Hermes project separate. It applies a focused desktop localization patch to an existing Hermes checkout, sets Arabic as the desktop language, and verifies the result with the desktop test commands.
