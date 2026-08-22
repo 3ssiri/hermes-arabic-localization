@@ -1,6 +1,8 @@
 {
   "name": "hermes-arabic-localization",
   "description": "Arabic localization patch for Hermes Desktop",
+  "status": "superseded",
+  "statusNote": "Arabic ships natively in Hermes Desktop as of upstream 5b6990e7a (2026-07-24). The patch below is kept for history and for Hermes checkouts older than that commit; translation changes now go to NousResearch/hermes-agent.",
   "maintainer": {
     "name": "Ali Asiri",
     "email": "assiri@gmail.com"
@@ -8,8 +10,11 @@
   "upstream": {
     "repository": "https://github.com/NousResearch/hermes-agent",
     "pullRequest": "https://github.com/NousResearch/hermes-agent/pull/45619",
+    "pullRequestState": "merged",
     "baseCommit": "a61183b56fdb45b9d2a0f2f6b8482e665ccf702f",
-    "headCommit": "640bda805c6ec48e01644ac976d6f550641bb3de"
+    "headCommit": "640bda805c6ec48e01644ac976d6f550641bb3de",
+    "mergedCommit": "5b6990e7a",
+    "mergedDate": "2026-07-24"
   },
   "patches": [
     {

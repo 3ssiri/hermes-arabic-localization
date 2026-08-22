@@ -1,5 +1,10 @@
 # تحديث التعريب مع تحديثات Hermes
 
+> [!NOTE]
+> صارت العربية مدعومة أصلاً في Hermes Desktop منذ `5b6990e7a` (2026-07-24). إن كانت نسختك
+> أحدث من ذلك فلا تحتاج هذا الدليل: حدّث Hermes واختر العربية من
+> Settings ← Appearance ← Language. ما يلي يخص النسخ الأقدم فقط.
+
 يتغير Hermes بسرعة، لذلك قد يحتاج ملف patch إلى تحديث عند صدور تغييرات كبيرة في
 واجهة سطح المكتب.
 
@@ -42,7 +47,8 @@ git -C "$env:LOCALAPPDATA\hermes\hermes-agent" rev-parse HEAD
 
 ## تحديث patch للمساهمين
 
-إذا كنت تطور التعريب:
+تحسينات الترجمة الجديدة تذهب مباشرة إلى [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)،
+لأن ملفات العربية صارت هناك. الخطوات التالية تبقى للرجوع إليها عند العمل على patch لنسخة قديمة:
 
 ```powershell
 cd $env:LOCALAPPDATA\hermes\hermes-agent

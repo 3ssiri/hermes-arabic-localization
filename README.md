@@ -31,15 +31,20 @@ The repository keeps the original Hermes project separate. It applies a focused 
 
 Original project: https://github.com/NousResearch/hermes-agent
 
-Upstream PR: https://github.com/NousResearch/hermes-agent/pull/45619
+Upstream PR: https://github.com/NousResearch/hermes-agent/pull/45619 — **merged 2026-07-24**
 
 Maintainer: **Ali Asiri** · X: https://x.com/3li3
 
 ## Why This Repository Exists
 
-The localization has been submitted upstream for review. This repository gives Arabic-speaking users a practical way to install and test the work while the official review continues. It also keeps the change auditable: the package is a patch, not a redistributed Hermes build.
+The localization was built here and submitted upstream, so Arabic-speaking users had a practical way to install and test the work while the official review ran. That review is finished — the translation is part of Hermes Desktop itself. The repository stays online as the record of how the work was made and reviewed: it always shipped a patch, never a redistributed Hermes build.
 
 ## Install
+
+> [!NOTE]
+> Only needed for a Hermes checkout older than `5b6990e7a` (2026-07-24). On any newer
+> build the patch is already upstream — update Hermes and pick العربية in
+> Settings → Appearance → Language instead.
 
 Windows PowerShell:
 
@@ -127,7 +132,7 @@ npm run test:ui -- src/i18n/runtime.test.ts src/i18n/languages.test.ts src/i18n/
 | `scripts/apply-arabic.sh` | macOS/Linux installer |
 | `scripts/verify.ps1` | Verification helper |
 | `docs/` | Installation, update, and troubleshooting notes |
-| `.github/workflows/` | Scheduled upstream and issue monitoring |
+| `.github/workflows/` | Issue monitoring (the scheduled upstream monitor is retired) |
 
 ## Credits
 
