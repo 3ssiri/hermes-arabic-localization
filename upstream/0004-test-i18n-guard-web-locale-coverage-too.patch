@@ -1,0 +1,197 @@
+From ba3e8d00ef60803910817146d4255fd417ea966f Mon Sep 17 00:00:00 2001
+From: Ali Asiri <assiri@gmail.com>
+Date: Sat, 22 Aug 2026 17:52:47 +0000
+Subject: [PATCH 4/4] test(i18n): guard web locale coverage too
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Mirrors the desktop guard for the dashboard catalogue, which has the same blind
+spot from two directions: most of `Translations` is optional (`?:`), so a
+literal locale can omit a key and still type-check, and `ar` goes through
+`defineLocale`, which merges it over `en` before anything can inspect it.
+
+`defineLocale` now records what a locale authored, and `coverage.test.ts` holds
+each locale to a ceiling. Ceilings are today's numbers, so the suite passes as
+written: ar 0, and 79 for the fifteen literal locales, which are each missing
+the same optional keys. Dead keys — ones `en` no longer has — are held at zero
+for every locale, since none has any.
+
+The test builds its own `Record<Locale, Translations>` rather than reaching for
+the private map in `context.tsx`, so a new locale fails to compile until it is
+listed here and cannot slip through unmeasured.
+
+Worth flagging for maintainers: a ceiling of 0 makes Arabic blocking in both
+apps — an English string shipped without an Arabic one now fails CI. That is
+the point, but it is a policy choice, and raising the ceiling is the escape
+hatch if you would rather keep English-only changes unblocked.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+---
+ web/src/i18n/coverage.test.ts | 122 ++++++++++++++++++++++++++++++++++
+ web/src/i18n/define-locale.ts |  21 +++++-
+ 2 files changed, 142 insertions(+), 1 deletion(-)
+ create mode 100644 web/src/i18n/coverage.test.ts
+
+diff --git a/web/src/i18n/coverage.test.ts b/web/src/i18n/coverage.test.ts
+new file mode 100644
+index 000000000..14af2a2c5
+--- /dev/null
++++ b/web/src/i18n/coverage.test.ts
+@@ -0,0 +1,122 @@
++import { describe, expect, it } from "vitest";
++
++import { af } from "./af";
++import { ar } from "./ar";
++import { authoredStrings } from "./define-locale";
++import { de } from "./de";
++import { en } from "./en";
++import { es } from "./es";
++import { fr } from "./fr";
++import { ga } from "./ga";
++import { hu } from "./hu";
++import { it as itLocale } from "./it";
++import { ja } from "./ja";
++import { ko } from "./ko";
++import { pt } from "./pt";
++import { ru } from "./ru";
++import { tr } from "./tr";
++import type { Locale, Translations } from "./types";
++import { uk } from "./uk";
++import { zh } from "./zh";
++import { zhHant } from "./zh-hant";
++
++// Typed as Record<Locale, …> on purpose: a new locale fails to compile here
++// until it is listed, so it cannot slip past this file unmeasured.
++const LOCALES: Record<Locale, Translations> = {
++  en,
++  zh,
++  "zh-hant": zhHant,
++  ja,
++  de,
++  es,
++  fr,
++  tr,
++  uk,
++  af,
++  ko,
++  it: itLocale,
++  ga,
++  pt,
++  ru,
++  hu,
++  ar,
++};
++
++/**
++ * Ceiling on the English strings each locale may leave untranslated.
++ *
++ * Untranslated strings are invisible here by construction. Most of
++ * `Translations` is optional (`?:`) so a locale can omit a key and still
++ * type-check, and `ar` goes through `defineLocale`, which merges it over `en`
++ * before anyone can look — so at runtime an untranslated key is
++ * indistinguishable from a translated one. Nothing surfaces the gap.
++ *
++ * The numbers only ever go down. Translating more of a locale is free; lowering
++ * its ceiling afterwards keeps the ratchet tight.
++ */
++const MAX_UNTRANSLATED: Record<Locale, number> = {
++  en: 0,
++  ar: 0,
++  af: 79,
++  de: 79,
++  es: 79,
++  fr: 79,
++  ga: 79,
++  hu: 79,
++  it: 79,
++  ja: 79,
++  ko: 79,
++  pt: 79,
++  ru: 79,
++  tr: 79,
++  uk: 79,
++  zh: 79,
++  "zh-hant": 79,
++};
++
++function leafKeys(value: unknown, prefix = "", out = new Set<string>()): Set<string> {
++  if (typeof value !== "object" || value === null || Array.isArray(value)) {
++    if (prefix) {
++      out.add(prefix);
++    }
++
++    return out;
++  }
++
++  for (const [key, child] of Object.entries(value)) {
++    leafKeys(child, prefix ? `${prefix}.${key}` : key, out);
++  }
++
++  return out;
++}
++
++const ENGLISH_KEYS = leafKeys(en);
++
++describe("web locale coverage", () => {
++  it("has an English catalogue to measure against", () => {
++    expect(ENGLISH_KEYS.size).toBeGreaterThan(0);
++  });
++
++  for (const locale of Object.keys(LOCALES) as Locale[]) {
++    it(`${locale} leaves at most ${MAX_UNTRANSLATED[locale]} strings untranslated`, () => {
++      const translations = LOCALES[locale];
++      // What the locale wrote, not what it renders: the override object for a
++      // partial locale, the locale itself for a `Translations` literal.
++      const authored = leafKeys(authoredStrings(translations) ?? translations);
++      const untranslated = [...ENGLISH_KEYS].filter((key) => !authored.has(key));
++
++      expect(
++        untranslated.length,
++        `${locale} is missing ${untranslated.length} of ${ENGLISH_KEYS.size} English strings, which will render in English. ` +
++          `Translate them in ${locale}.ts. First few: ${untranslated.slice(0, 8).join(", ")}`,
++      ).toBeLessThanOrEqual(MAX_UNTRANSLATED[locale]);
++    });
++
++    it(`${locale} defines no strings English has dropped`, () => {
++      const authored = leafKeys(authoredStrings(LOCALES[locale]) ?? LOCALES[locale]);
++      const unused = [...authored].filter((key) => !ENGLISH_KEYS.has(key));
++
++      expect(unused, `${locale} defines keys absent from en.ts — dead strings to delete`).toEqual([]);
++    });
++  }
++});
+diff --git a/web/src/i18n/define-locale.ts b/web/src/i18n/define-locale.ts
+index 401a0cccb..899d42c40 100644
+--- a/web/src/i18n/define-locale.ts
++++ b/web/src/i18n/define-locale.ts
+@@ -41,6 +41,25 @@ function mergeTranslations<T>(base: T, overrides: TranslationOverride<T> | undef
+   return result as T;
+ }
+ 
++// `defineLocale` hands back a locale already merged over English, so at runtime
++// a string nobody translated is indistinguishable from one that was. Keep a
++// handle on what each locale actually authored so coverage stays measurable —
++// see `coverage.test.ts`.
++const AUTHORED = new WeakMap<Translations, TranslationOverrides>();
++
+ export function defineLocale(overrides: TranslationOverrides): Translations {
+-  return mergeTranslations<Translations>(en, overrides);
++  const locale = mergeTranslations<Translations>(en, overrides);
++
++  AUTHORED.set(locale, overrides);
++
++  return locale;
++}
++
++/**
++ * The strings a locale supplied itself, before the English fallback was merged
++ * in. `undefined` for a locale declared as a `Translations` literal, which
++ * authors its keys directly and so is its own answer.
++ */
++export function authoredStrings(locale: Translations): TranslationOverrides | undefined {
++  return AUTHORED.get(locale);
+ }
+-- 
+2.43.0
+

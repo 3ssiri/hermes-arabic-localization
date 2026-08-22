@@ -1,7 +1,8 @@
 From 1ba8c48b01787538dcc0c2894354809d541aa152 Mon Sep 17 00:00:00 2001
 From: Ali Asiri <assiri@gmail.com>
 Date: Sat, 22 Aug 2026 08:11:18 +0000
-Subject: [PATCH] i18n(desktop): bring the Arabic locale back to full coverage
+Subject: [PATCH 1/4] i18n(desktop): bring the Arabic locale back to full
+ coverage
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
