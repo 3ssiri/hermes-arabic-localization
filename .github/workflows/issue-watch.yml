@@ -32,4 +32,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          gh issue comment "${ISSUE_NUMBER}" --body "Thanks for reporting this. It has been marked for maintainer review and will be checked against the Arabic localization patch and desktop verification path."
+          body_file="${RUNNER_TEMP}/ack.md"
+          {
+            echo "Thanks for reporting this. It has been marked for maintainer review."
+            echo
+            echo "Note: Arabic ships natively in Hermes Desktop since upstream \`5b6990e7a\` (2026-07-24), so the patch in this repository is superseded. If this is about the Arabic translation or RTL behaviour in a current Hermes build, please open it at <https://github.com/NousResearch/hermes-agent> — that is where fixes now land."
+          } > "${body_file}"
+          gh issue comment "${ISSUE_NUMBER}" --body-file "${body_file}"

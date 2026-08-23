@@ -1,12 +1,14 @@
+# Retired on 2026-08-01: Arabic ships natively in Hermes Desktop as of upstream
+# 5b6990e7a, so there is no patch left to keep compatible. The scheduled trigger is
+# gone and the workflow no longer writes to the repository; it is kept, dispatch-only,
+# so the historical compatibility check can still be reproduced by hand.
 name: Monitor upstream compatibility
 
 on:
-  schedule:
-    - cron: "0 */12 * * *"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   issues: write
 
 concurrency:
@@ -107,7 +109,7 @@ jobs:
           title="Arabic localization monitor: upstream compatibility needs review"
           body_file="${RUNNER_TEMP}/monitor-issue.md"
           {
-            echo "The scheduled upstream compatibility check failed."
+            echo "A manually dispatched upstream compatibility check failed."
             echo
             echo "- Tracked upstream commit: \`${TRACKED_COMMIT}\`"
             echo "- Latest upstream commit: \`${LATEST_COMMIT}\`"
@@ -131,22 +133,3 @@ jobs:
           fi
 
           exit 1
-
-      - name: Update tracked upstream commit after passing checks
-        if: steps.changes.outputs.full_check == 'true' && steps.compatibility.outcome == 'success' && env.latest_commit != steps.tracked.outputs.base_commit
-        shell: bash
-        run: |
-          set -euo pipefail
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const path = 'src/manifest.json';
-          const manifest = JSON.parse(fs.readFileSync(path, 'utf8'));
-          manifest.upstream.baseCommit = process.env.latest_commit;
-          fs.writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
-          NODE
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/manifest.json
-          git commit -m "chore: update monitored Hermes upstream commit"
-          git push
