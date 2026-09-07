@@ -1,87 +1,96 @@
 # Staged upstream contribution
 
 Arabic ships natively in Hermes since
-[`5b6990e7a`](https://github.com/NousResearch/hermes-agent/commit/5b6990e7a) (2026-07-24), so
-translation work now belongs in [`NousResearch/hermes-agent`](https://github.com/NousResearch/hermes-agent),
-not in this repository's superseded patch. This directory is a staging area: it holds work
-prepared here and ready to be submitted there.
+[`5b6990e7a`](https://github.com/NousResearch/hermes-agent/commit/5b6990e7a)
+(2026-07-24). Translation work belongs in
+[`NousResearch/hermes-agent`](https://github.com/NousResearch/hermes-agent),
+not in this repository's historical installer patch.
 
-Four commits, prepared against upstream `4ba038b5` and re-verified as applying cleanly to
-`0cde4dd93` (2026-08-22). Apply them in order.
+This directory holds the next catch-up, prepared against upstream
+`6178e9f4` (2026-09-07).
 
-| Patch | What it does |
-| --- | --- |
-| `0001` | Desktop Arabic → 100% coverage (783 strings) |
-| `0002` | Desktop coverage guard, so it cannot silently drift again |
-| `0003` | Dashboard Arabic → 100% coverage (140 strings) |
-| `0004` | Dashboard coverage guard |
+## Required change
 
-## Why this was needed
+**Yes — a new upstream update is required.** The open catch-up PR
 
-Both apps merge a locale over `en`, so a key nobody translated still renders — in English — and
-nothing flags it. In the desktop app every field of `TranslationOverrides` is optional, so `tsc`
-stays quiet; in the dashboard most of `Translations` is optional (`?:`) as well. A runtime test
-comparing the two catalogues finds nothing, because by then the English fallback has already
-been merged in. Arabic drifted for a month without a single failing check.
+https://github.com/NousResearch/hermes-agent/pull/92651
 
-| Catalogue | Before | After |
+is still the right vehicle, but it is `CONFLICTING` with `main`. Since it was
+last synced (2026-08-23) Hermes added more UI, so even a clean rebase of that
+branch would leave Arabic incomplete again.
+
+| Catalogue | On `main` today | After this series |
 | --- | ---: | ---: |
-| `apps/desktop/src/i18n/ar.ts` | 74.8% — 783 strings in English | **100%** |
-| `web/src/i18n/ar.ts` | 80.4% — 140 strings in English | **100%** |
+| `apps/desktop/src/i18n/ar.ts` | ~72% — 931 authored keys missing | **100%** |
+| `web/src/i18n/ar.ts` | 80.3% — 141 strings in English | **100%** |
 
-No regressions were involved in either: nothing that had been translated reverted to English.
-The desktop gap was the 372 strings added upstream in the month after the merge; the dashboard
-gap was strings its catalogue never had.
+Largest new desktop gaps since August: `settings.localModels` (100),
+`settings.managedUpdates` (15), `settings.toolsets.browserRealProfile` (15),
+plus status-bar resource meters, in-app browser annotations, and fleet
+profiles. Four whole sections were still absent on `main`
+(`billingBlock`, `findInPage`, `starmap`, `webhooks`); those translations
+already existed in #92651 and are included here.
 
-Arabic is now the most complete locale in the dashboard — every other locale there is a
-`Translations` literal, and each is missing the same 79 optional keys.
+The coverage-guard commits from #92651 (`defineLocale` authored-map +
+`coverage.test.ts`) are still worth landing. They are archived at
+`archive/2026-08-23/` and need a rebase onto current `main` after these
+locale files; they are not replayed here because they touch shared i18n
+infrastructure and were the source of the conflict.
 
-## The guards
+## How to apply
 
-`defineLocale` now records what each locale authored before the English merge, and a
-`coverage.test.ts` in each app holds every locale to a ceiling. Ceilings are set to today's
-numbers, so both suites pass as written and only block regressions:
-
-- desktop — `ar` 0, `zh` 22, `ja` 598, `zh-hant` 598
-- dashboard — `ar` 0, the fifteen literal locales 79 each
-
-They are meant to ratchet down: translating more of a locale and lowering its number is always
-safe.
-
-**One policy call for the maintainers.** A ceiling of 0 makes Arabic blocking in both apps — an
-English string shipped without an Arabic one now fails CI. That is the point, but it is their
-call, and raising a ceiling is the escape hatch if they would rather keep English-only changes
-unblocked.
-
-## Submitting
+Drop-in files (preferred — does not depend on patch context):
 
 ```sh
 git clone https://github.com/NousResearch/hermes-agent.git
 cd hermes-agent
 git checkout -b ar-locale-catchup
-git am /path/to/000*.patch
-git push -u origin ar-locale-catchup
+cp /path/to/hermes-arabic-localization/upstream/locales/desktop-ar.ts \
+   apps/desktop/src/i18n/ar.ts
+cp /path/to/hermes-arabic-localization/upstream/locales/web-ar.ts \
+   web/src/i18n/ar.ts
 ```
 
-`git am` preserves each commit message and authorship.
+Or apply the patches against `6178e9f4` (or a close descendant):
 
-## What was verified here
+```sh
+git apply /path/to/0001-i18n-desktop-restore-Arabic-to-full-coverage.patch
+git apply /path/to/0002-i18n-web-complete-the-Arabic-locale.patch
+```
 
-- 100% key parity with `en.ts` in both apps, by evaluating the locale modules and diffing leaf
-  paths — the same measurement the new tests perform.
-- Both guards were simulated against the real catalogues: they pass on current state, and they
-  fail when a translated key is removed or an untranslated English key is added.
-- Purely additive diffs. Desktop: 881 insertions, and each of the 11 deleted lines reappears
-  verbatim with a trailing comma because a sibling was inserted after it. Dashboard: 146
-  insertions, 0 deletions.
-- Arrow-function entries keep their parameter lists, type annotations and `${...}` placeholders;
-  the dashboard's `{count}` / `{name}` style placeholders are preserved and array values keep
-  their length.
-- Desktop files are prettier-clean under the repo `.prettierrc`; the dashboard is not
-  prettier-managed under that config, so its files follow the surrounding style instead.
-- `tsc` reports zero syntax errors in all six touched files, and no diagnostic category the
-  originals did not already produce.
-- The whole series applies cleanly to upstream HEAD.
+Then push to the existing #92651 branch after rebasing it onto current
+`main`, or open a fresh PR if a force-push is undesirable.
 
-Not run: upstream's test suites and a full typecheck, both of which need the monorepo's
-dependencies installed. CI on the upstream PR is the real gate.
+## What this series is
+
+| Artifact | What it does |
+| --- | --- |
+| `locales/desktop-ar.ts` | Complete desktop Arabic catalogue |
+| `locales/web-ar.ts` | Complete dashboard Arabic catalogue |
+| `0001` | Same desktop file as a patch against `6178e9f4` |
+| `0002` | Same dashboard file as a patch against `6178e9f4` |
+
+The desktop file is the union of:
+
+1. Arabic already on `main` (including newer keys such as `sessionImport`)
+2. The 759 translations from #92651 that `main` never received
+3. 170 new strings for UI that landed after 23 August 2026
+
+Dashboard: 140 strings from #92651 plus `oauth.sessionExpiredNoError`.
+
+## What was verified
+
+- 100% leaf-key parity with current `en.ts` in both apps.
+- Both generated files parse with esbuild (no syntax errors).
+- Function parameter lists, `${...}` templates, and `{name}` / `{count}`
+  placeholders are preserved.
+- Product and protocol names stay in Latin script (Hermes, llama.cpp, GPU,
+  Hugging Face, SSH, MCP, Webhooks).
+
+Not run: the hermes-agent monorepo test suite and typecheck. CI on the
+upstream PR is the real gate.
+
+## Older series
+
+`archive/2026-08-23/` is the August series that #92651 was opened from. Do
+not apply it to current `main`; it no longer applies cleanly.
