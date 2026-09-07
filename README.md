@@ -24,6 +24,11 @@
 > Hermes and pick Arabic in Settings. This repo is kept for history; the upstream
 > compatibility monitor has been retired. Translation improvements should go directly
 > to [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent).
+>
+> A full-coverage catch-up for current Hermes (desktop + dashboard) is staged in
+> [`upstream/`](upstream/README.md). The open upstream PR
+> ([#92651](https://github.com/NousResearch/hermes-agent/pull/92651)) needs a
+> rebase onto `main` — Arabic on today's Hermes is ~72% desktop / 80% dashboard.
 
 Arabic interface support for **Hermes Desktop**, distributed as a patch and installer scripts.
 

@@ -2,7 +2,17 @@
   "name": "hermes-arabic-localization",
   "description": "Arabic localization patch for Hermes Desktop",
   "status": "superseded",
-  "statusNote": "Arabic ships natively in Hermes Desktop as of upstream 5b6990e7a (2026-07-24). The patch below is kept for history and for Hermes checkouts older than that commit; translation changes now go to NousResearch/hermes-agent.",
+  "statusNote": "Arabic ships natively in Hermes Desktop as of upstream 5b6990e7a (2026-07-24). The installer patch below is kept for history and for Hermes checkouts older than that commit. A full-coverage catch-up for current Hermes is staged in upstream/ (measured on 6178e9f4, 2026-09-07) and should land via NousResearch/hermes-agent#92651 after that PR is rebased.",
+  "catchUp": {
+    "upstreamHead": "6178e9f4eed8d99f4fc550add939d58c7bed6206",
+    "upstreamHeadDate": "2026-09-07",
+    "pullRequest": "https://github.com/NousResearch/hermes-agent/pull/92651",
+    "pullRequestState": "open-conflicting",
+    "desktopCoverageOnMain": "72%",
+    "webCoverageOnMain": "80.3%",
+    "desktopCoverageAfter": "100%",
+    "webCoverageAfter": "100%"
+  },
   "maintainer": {
     "name": "Ali Asiri",
     "email": "assiri@gmail.com"
